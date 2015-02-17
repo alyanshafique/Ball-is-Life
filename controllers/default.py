@@ -22,6 +22,21 @@ def index():
     return dict(message=T('Hello World'))
 
 
+def scores():
+    test = 'My Thumbnail'
+    response.flash = T("Welcome to web2py!")
+    return dict(message=T('Hello World'))
+
+def stats():
+    test = 'My Thumbnail'
+    response.flash = T("Welcome to web2py!")
+    return dict(message=T('Hello World'))
+
+def top_players():
+    test = 'My Thumbnail'
+    response.flash = T("Welcome to web2py!")
+    return dict(message=T('Hello World'))
+
 def user():
     """
     exposes:
