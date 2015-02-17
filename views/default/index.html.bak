@@ -3,7 +3,7 @@
 <style>
     body { background: url(http://hoop76.com/wp-content/uploads/2013/02/NBA-court2.jpg); }
     div {
-        display: inline-block;
+        display: block;
     }
     .navbar-inner{
         background-image: url(http://images.fineartamerica.com/images-medium-large/1-basketball--leather-close-up-ben-haslam.jpg);
@@ -50,9 +50,6 @@
     </head>
     <body>
         <div class="container">
-            <div class="page-header">
-                <h1>Welcome <small>Find All Your NBA Related Information Here.</small></h1>
-            </div>
             <div class="navbar navbar-fixed-top">
                 <div class="navbar-inner">
                     <a class="brand">Ball is Life</a>
@@ -64,7 +61,9 @@
                     </ul>
                 </div>
             </div>
-            
+            <div class="page-header">
+                <h1>Welcome <small>Find All Your NBA Related Information Here.</small></h1>
+            </div>
         </div>
     </body>
 </html>
