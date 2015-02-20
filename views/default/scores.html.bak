@@ -48,11 +48,16 @@
             <div class="navbar-inner">
                 <a class="brand">Ball is Life</a>
                 <ul class="nav">
-                    <li><a href="../index.html">Home</a>
+                    <li><a href="index.html">Home</a>
                     <li class="active"><a href="scores.html">Live Scores</a></li>
                     <li><a href="stats.html">Stats</a></li>
                     <li><a href="top_players.html">Top Players</a></li>
                 </ul>
+            </div>
+        </div>
+        <div class="container">
+            <div class="page-header" style="border-bottom: none">
+                <h1 style="color:black; font-weight: bold">Live Scores</h1>
             </div>
         </div>
     </body>
