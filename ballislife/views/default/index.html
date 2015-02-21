@@ -1,0 +1,72 @@
+{{extend 'layout.html'}}
+<!DOCTYPE html>
+<style>
+    body {
+        background: url(http://hoop76.com/wp-content/uploads/2013/02/NBA-court2.jpg);
+        height: 1200px;
+    }
+    div {
+        display: block;
+    }
+    .container {
+        margin-top: 75px;
+    }
+    .navbar-inner{
+        background-image: url(http://images.fineartamerica.com/images-medium-large/1-basketball--leather-close-up-ben-haslam.jpg);
+        height: 100px;
+        border-color: black;
+        text-align: center;
+    }
+    .navbar .nav {
+        float: right;
+    }
+    .navbar .brand {
+        color: #CCCCCC;
+        margin-top: 55px;
+        font-family: Brush Script MT;
+        font-size: 75px;
+    }
+    .navbar .nav > li > a {
+        color:  white;
+        margin-top: 60px;
+        font-family: Charter;
+        font-weight: bold;
+        font-size: 20px;
+        text-shadow: none;
+        text-align: center;
+    }
+    .navbar .nav > li.active > a {
+        color: black;
+    }
+    .navbar .nav > li.active > a:hover {
+        background-color: black;
+        color: white;
+    }
+    .navbar .nav > li > a:hover {
+        background-color: black;
+        color: white;
+    }
+    .navbar-default .navbar-nav > .active > a:focus
+</style>
+<html lang="en">
+    <head>
+    </head>
+    <body>
+        <div class="navbar navbar-fixed-top">
+            <div class="navbar-inner">
+                <a class="brand">Ball is Life</a>
+                <ul class="nav">
+                    <li class="active"><a href="index.html">Home</a>
+                    <li><a href="scores.html">Live Scores</a></li>
+                    <li><a href="stats.html">Stats</a></li>
+                    <li><a href="top_players.html">Top Players</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="container">
+            <div class="page-header" style="border-bottom: none">
+                <h1 style="color:black; font-weight: bold">Welcome <small style="color: black">Find All Your NBA Related Information Here.</small></h1>
+            </div>
+        </div>
+    </body>
+</html>

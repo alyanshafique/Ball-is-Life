@@ -8,8 +8,9 @@
 ## - download is for downloading files uploaded in the db (does streaming)
 ## - api is an example of Hypermedia API support and access control
 #########################################################################
-#import requests
+import requests
 import json
+import os
 
 """
 
@@ -53,7 +54,7 @@ def find_stats(name,player_id):
     'SeasonType=Regular+Season&TeamID=0&VsConference=&VsDivision='
     
     #Create Dict based on JSON response
-    response = current.requests.get(url)
+    response = requests.get(url)
     shots = response.json()['resultSets'][0]['rowSet']
     data = json.loads(response.text)
     
@@ -75,10 +76,15 @@ def find_stats(name,player_id):
     players.append(player_stats.copy())
 
 def stats():
-    file = open('blah.txt', 'r')
-    
+    #file = open('team_players.json', 'r')
     #read_file = file.read()
-    #z=json.loads(read_file)
+    with open ('applications/ballislife/static/team_players.json') as f:
+        data=f.read()
+        print ('+++++++++++++++++++++++')
+        print data
+    print ('====================')
+    #print (read_file)
+    #z=json.load('team_players.json')
     #NBA Stats API using selected player ID
     """for x in teams:
         for y in teams[x]:
