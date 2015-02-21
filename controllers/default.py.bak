@@ -20,8 +20,9 @@ filename = open('../Models/team_players.json', 'r')
 read_file = filename.read()
 
 y=json.loads(read_file)
-
 """
+
+
 
 def index():
     """
@@ -41,19 +42,8 @@ def scores():
     response.flash = T("Welcome to web2py!")
     return dict(message=T('Hello World'))
 
-def stats():
-    filename = open('../static/team_players.json', 'r')
-    read_file = filename.read()
-    z=json.loads(read_file)
-    #NBA Stats API using selected player ID
-    for x in teams:
-        for y in teams[x]:
-            find_stats(y,teams[x][y])
-    #find_stats('stephen curry','201939');
-    cols = ['name','avg_defender_distance','avg_dribbles','avg_shot_distance','avg_touch_time']
-    df = pd.DataFrame(players,columns = cols)
-
-    df.head()
+def team_players():
+    return(dict(a="a"))
 
 def find_stats(name,player_id):
     url = 'http://stats.nba.com/stats/playerdashptshotlog?'+ \
@@ -63,7 +53,7 @@ def find_stats(name,player_id):
     'SeasonType=Regular+Season&TeamID=0&VsConference=&VsDivision='
     
     #Create Dict based on JSON response
-    response = requests.get(url)
+    response = current.requests.get(url)
     shots = response.json()['resultSets'][0]['rowSet']
     data = json.loads(response.text)
     
@@ -83,6 +73,21 @@ def find_stats(name,player_id):
     player_stats['avg_touch_time'] = avg_touch_time
     player_stats['avg_dribbles'] = avg_dribbles
     players.append(player_stats.copy())
+
+def stats():
+    file = open('blah.txt', 'r')
+    
+    #read_file = file.read()
+    #z=json.loads(read_file)
+    #NBA Stats API using selected player ID
+    """for x in teams:
+        for y in teams[x]:
+            find_stats(y,teams[x][y])"""
+    find_stats('stephen curry','201939');
+    cols = ['name','avg_defender_distance','avg_dribbles','avg_shot_distance','avg_touch_time']
+    df = pd.DataFrame(players,columns = cols)
+
+    df.head()
 
 def top_players():
     test = 'My Thumbnail'
