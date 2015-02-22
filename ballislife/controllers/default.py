@@ -23,7 +23,8 @@ read_file = filename.read()
 y=json.loads(read_file)
 """
 
-
+players = []
+player_stats = {'name':None,'avg_dribbles':None,'avg_touch_time':None,'avg_shot_distance':None,'avg_defender_distance':None}
 
 def index():
     """
@@ -56,8 +57,10 @@ def find_stats(name,player_id):
     #Create Dict based on JSON response
     response = requests.get(url)
     shots = response.json()['resultSets'][0]['rowSet']
-    data = json.loads(response.text)
-    
+    data = simplejson.loads(response.text)
+    print ('_______________________________')
+    print data
+    print ('-------------------------------')
     #Create df from data and find averages 
     headers = data['resultSets'][0]['headers']
     shot_data = data['resultSets'][0]['rowSet']
@@ -67,7 +70,7 @@ def find_stats(name,player_id):
     avg_shot_distance = df['SHOT_DIST'].mean(axis=1)
     avg_touch_time = df['TOUCH_TIME'].mean(axis=1)
      
-     #add averages to dictionary
+    #add averages to dictionary
     player_stats['name'] = name
     player_stats['avg_defender_distance']=avg_def
     player_stats['avg_shot_distance'] = avg_shot_distance
@@ -78,19 +81,18 @@ def find_stats(name,player_id):
 def stats():
     with open ('applications/ballislife/static/team_players.json') as f:
         data=f.read()
-        print ('+++++++++++++++++++++++')
-        z=simplejson.loads(f.read())
-        print ('====================')
-        print z
+        z=simplejson.dumps(data)
     #NBA Stats API using selected player ID
-    for x in teams:
-        for y in teams[x]:
-            find_stats(y,teams[x][y])
-    #find_stats('stephen curry','201939');
+    #for x in teams:
+    #    for y in teams[x]:
+    #        find_stats(y,teams[x][y])
+    find_stats('stephen curry','201939');
     cols = ['name','avg_defender_distance','avg_dribbles','avg_shot_distance','avg_touch_time']
     df = pd.DataFrame(players,columns = cols)
-
+    print ('=========================')
+    print df
     df.head()
+    return dict(df=df);
 
 def top_players():
     test = 'My Thumbnail'
