@@ -22,9 +22,13 @@ read_file = filename.read()
 
 y=json.loads(read_file)
 """
-
+pd.set_option('display.width', 200)
+pd.options.display.max_colwidth = 100
 players = []
-player_stats = {'name':None,'avg_dribbles':None,'avg_touch_time':None,'avg_shot_distance':None,'avg_defender_distance':None}
+player_stats = {'name':None,'games':None,'wins':None,'losses':None,'win_pct':None,'minutes':None,'fgm':None,'fga':None,'fg_pct':None,
+                'fg3m':None,'fg3a':None,'fg3_pct':None,'ftm':None,'fta':None,'ft_pct':None,'oreb':None,'dreb':None,'reb':None,'ast':None,
+                'tov':None,'stl':None,'blk':None,'pf':None,'pts':None,'plus_minus':None}
+#player_stats = {'name':None,'avg_dribbles':None,'avg_touch_time':None,'avg_shot_distance':None,'avg_defender_distance':None}
 
 def index():
     """
@@ -48,35 +52,94 @@ def team_players():
     return(dict(a="a"))
 
 def find_stats(name,player_id):
-    url = 'http://stats.nba.com/stats/playerdashptshotlog?'+ \
+    """url = 'http://stats.nba.com/stats/playerdashptshotlog?'+ \
     'DateFrom=&DateTo=&GameSegment=&LastNGames=0&LeagueID=00&' + \
     'Location=&Month=0&OpponentTeamID=0&Outcome=&Period=0&' + \
     'PlayerID='+player_id+'&Season=2014-15&SeasonSegment=&' + \
-    'SeasonType=Regular+Season&TeamID=0&VsConference=&VsDivision='
+    'SeasonType=Regular+Season&TeamID=0&VsConference=&VsDivision='"""
+    
+    url = 'http://stats.nba.com/stats/playerdashboardbygeneralsplits?' + \
+    'DateFrom=&DateTo=&GameSegment=&LastNGames=0&LeagueID=00&Location=&' + \
+    'MeasureType=Base&Month=0&OpponentTeamID=0&Outcome=&PaceAdjust=N&' + \
+    'PerMode=PerGame&Period=0&PlayerID='+player_id+'+&PlusMinus=N&Rank=N' + \
+    '&Season=2014-15&SeasonSegment=&SeasonType=Regular+Season&VsConference=&VsDivision='
     
     #Create Dict based on JSON response
     response = requests.get(url)
     shots = response.json()['resultSets'][0]['rowSet']
     data = simplejson.loads(response.text)
-    print ('_______________________________')
-    print data
-    print ('-------------------------------')
-    #Create df from data and find averages 
+    #print ('================================')
+    #print data
+    #Create df from data and find averages
     headers = data['resultSets'][0]['headers']
     shot_data = data['resultSets'][0]['rowSet']
-    df = pd.DataFrame(shot_data,columns=headers) 
-    avg_def = df['CLOSE_DEF_DIST'].mean(axis=1)
+    df = pd.DataFrame(shot_data,columns=headers)
+    #print ('+++++++++++++++++++++++++++++++++')
+    #print df
+    """avg_def = df['CLOSE_DEF_DIST'].mean(axis=1)
     avg_dribbles = df['DRIBBLES'].mean(axis=1)
     avg_shot_distance = df['SHOT_DIST'].mean(axis=1)
-    avg_touch_time = df['TOUCH_TIME'].mean(axis=1)
-     
+    avg_touch_time = df['TOUCH_TIME'].mean(axis=1)"""
+    games = df['GP'].mean(axis=1)
+    wins = df['W'].mean(axis=1)
+    losses = df['L'].mean(axis=1)
+    win_pct = df['W_PCT'].mean(axis=1)
+    minutes = df['MIN'].mean(axis=1)
+    fgm = df['FGM'].mean(axis=1)
+    fga = df['FGA'].mean(axis=1)
+    fg_pct = df['FG_PCT'].mean(axis=1)
+    fg3m = df['FG3M'].mean(axis=1)
+    fg3a = df['FG3A'].mean(axis=1)
+    fg3_pct = df['FG3_PCT'].mean(axis=1)
+    ftm = df['FTM'].mean(axis=1)
+    fta = df['FTA'].mean(axis=1)
+    ft_pct = df['FT_PCT'].mean(axis=1)
+    oreb = df['OREB'].mean(axis=1)
+    dreb = df['DREB'].mean(axis=1)
+    reb = df['REB'].mean(axis=1)
+    ast = df['AST'].mean(axis=1)
+    tov = df['TOV'].mean(axis=1)
+    stl = df['STL'].mean(axis=1)
+    blk = df['BLK'].mean(axis=1)
+    pf = df['PF'].mean(axis=1)
+    pts = df['PTS'].mean(axis=1)
+    plus_minus = df['PLUS_MINUS'].mean(axis=1)
     #add averages to dictionary
     player_stats['name'] = name
-    player_stats['avg_defender_distance']=avg_def
+    """player_stats['avg_defender_distance']=avg_def
     player_stats['avg_shot_distance'] = avg_shot_distance
     player_stats['avg_touch_time'] = avg_touch_time
     player_stats['avg_dribbles'] = avg_dribbles
+    players.append(player_stats.copy())"""
+    player_stats['games'] = games
+    player_stats['wins']= wins
+    player_stats['losses'] = losses
+    player_stats['win_pct'] = win_pct
+    player_stats['minutes'] = minutes
+    player_stats['fgm'] = fgm
+    player_stats['fga'] = fga
+    player_stats['fg_pct'] = fg_pct
+    player_stats['fg3m'] = fg3m
+    player_stats['fg3a'] = fg3a
+    player_stats['fg3_pct'] = fg3_pct
+    player_stats['ftm'] = ftm
+    player_stats['fta'] = fta
+    player_stats['ft_pct'] = ft_pct
+    player_stats['ftm'] = ftm
+    player_stats['fta'] = fta
+    player_stats['ft_pct'] = ft_pct
+    player_stats['oreb'] = oreb
+    player_stats['dreb'] = dreb
+    player_stats['reb'] = reb
+    player_stats['ast'] = ast
+    player_stats['tov'] = tov
+    player_stats['stl'] = stl
+    player_stats['blk'] = blk
+    player_stats['pf'] = pf
+    player_stats['pts'] = pts
+    player_stats['plus_minus'] = plus_minus
     players.append(player_stats.copy())
+    
 
 def stats():
     with open ('applications/ballislife/static/team_players.json') as f:
@@ -87,11 +150,13 @@ def stats():
     #    for y in teams[x]:
     #        find_stats(y,teams[x][y])
     find_stats('stephen curry','201939');
-    cols = ['name','avg_defender_distance','avg_dribbles','avg_shot_distance','avg_touch_time']
+    #cols = ['name','avg_defender_distance','avg_dribbles','avg_shot_distance','avg_touch_time']
+    cols = ['name', 'games', 'wins', 'losses', 'win_pct', 'minutes', 'fgm', 'fga', 'fg_pct', 'fg3m', 'fg3a', 'fg3_pct',
+            'ftm', 'fta','ft_pct', 'pf', 'oreb', 'dreb', 'reb', 'ast', 'tov', 'stl', 'blk', 'pts', 'plus_minus']
     df = pd.DataFrame(players,columns = cols)
     print ('=========================')
-    print df
-    df.head()
+    #print df
+    print df.head()
     return dict(df=df);
 
 def top_players():
