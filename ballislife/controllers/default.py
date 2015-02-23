@@ -25,7 +25,7 @@ y=json.loads(read_file)
 pd.set_option('display.width', 200)
 pd.set_option('display.max_colwidth', -1)
 players = []
-player_stats = {'name':None,'games':None,'wins':None,'losses':None,'win_pct':None,'minutes':None,'fgm':None,'fga':None,'fg_pct':None,
+player_stats = {'name':None,'gp':None,'w':None,'l':None,'win_pct':None,'min':None,'fgm':None,'fga':None,'fg_pct':None,
                 'fg3m':None,'fg3a':None,'fg3_pct':None,'ftm':None,'fta':None,'ft_pct':None,'oreb':None,'dreb':None,'reb':None,'ast':None,
                 'tov':None,'stl':None,'blk':None,'pf':None,'pts':None,'plus_minus':None}
 #player_stats = {'name':None,'avg_dribbles':None,'avg_touch_time':None,'avg_shot_distance':None,'avg_defender_distance':None}
@@ -80,11 +80,11 @@ def find_stats(name,player_id):
     avg_dribbles = df['DRIBBLES'].mean(axis=1)
     avg_shot_distance = df['SHOT_DIST'].mean(axis=1)
     avg_touch_time = df['TOUCH_TIME'].mean(axis=1)"""
-    games = df['GP'].mean(axis=1)
-    wins = df['W'].mean(axis=1)
-    losses = df['L'].mean(axis=1)
+    gp = df['GP'].mean(axis=1)
+    w = df['W'].mean(axis=1)
+    l = df['L'].mean(axis=1)
     win_pct = df['W_PCT'].mean(axis=1)
-    minutes = df['MIN'].mean(axis=1)
+    min = df['MIN'].mean(axis=1)
     fgm = df['FGM'].mean(axis=1)
     fga = df['FGA'].mean(axis=1)
     fg_pct = df['FG_PCT'].mean(axis=1)
@@ -111,11 +111,11 @@ def find_stats(name,player_id):
     player_stats['avg_touch_time'] = avg_touch_time
     player_stats['avg_dribbles'] = avg_dribbles
     players.append(player_stats.copy())"""
-    player_stats['games'] = games
-    player_stats['wins']= wins
-    player_stats['losses'] = losses
+    player_stats['gp'] = gp
+    player_stats['w']= w
+    player_stats['l'] = l
     player_stats['win_pct'] = win_pct
-    player_stats['minutes'] = minutes
+    player_stats['min'] = min
     player_stats['fgm'] = fgm
     player_stats['fga'] = fga
     player_stats['fg_pct'] = fg_pct
@@ -153,13 +153,13 @@ def stats():
     find_stats('Klay Thompson','202691')
     find_stats('LeBron James','2544')
     #cols = ['name','avg_defender_distance','avg_dribbles','avg_shot_distance','avg_touch_time']
-    cols = ['name', 'games', 'wins', 'losses', 'win_pct', 'minutes', 'fgm', 'fga', 'fg_pct', 'fg3m', 'fg3a', 'fg3_pct',
+    cols = ['name', 'gp', 'w', 'l', 'win_pct', 'min', 'fgm', 'fga', 'fg_pct', 'fg3m', 'fg3a', 'fg3_pct',
             'ftm', 'fta','ft_pct', 'pf', 'oreb', 'dreb', 'reb', 'ast', 'tov', 'stl', 'blk', 'pts', '+/-']
     #
     df = pd.DataFrame(players,columns = cols)
     print ('=========================')
     print df
-    df = df.to_html()
+    df = df.to_html(classes="table table-condensed")
     return dict(df=df)
 
 def top_players():

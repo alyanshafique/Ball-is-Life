@@ -46,40 +46,33 @@
         color: white;
     }
     .navbar-default .navbar-nav > .active > a:focus
-    .table {
-        color: white;
+    .table .table-condensed {
+        color: black;
+        background-color: white;
     }
     .dataframe thead th {
         background-color: #003366;
+        color:white;
+        text-transform: uppercase;
     }
     .dataframe {
-        border: 3px solid white;
-        background-color:orange;
-        color:white;
+        border-top: 3px solid white;
+        color:black;
         font-weight:bold;
         width:100%;
         position:absolute;
     }
     tr:hover td {
-        background:#000
+        background:#DFDFDF
     }
-    tr:nth-child(even) {
-        background-color: gray;
-    }
+    /*tr:nth-child(even) {
+        background-color: #DFDFDF;
+    }*/
 </style>
 <html lang="en">
     <head>
     </head>
     <body>
-        
-        <div class="container">
-            <div class="page-header" style="border-bottom: none">
-                <h1 style="color:black; font-weight: bold">Search Statistics <small style="color: black">Fulfill Your Need For Stats.</small></h1>
-            </div>
-        </div>
-        <div>
-            {{=XML(df)}}
-        </div>
         <div class="navbar navbar-fixed-top">
             <div class="navbar-inner">
                 <a class="brand">Ball is Life</a>
@@ -90,6 +83,14 @@
                     <li><a href="top_players.html">Top Players</a></li>
                 </ul>
             </div>
+        </div>
+        <div class="container">
+            <div class="page-header" style="border-bottom: none">
+                <h1 style="color:black; font-weight: bold">Search Statistics <small style="color: black">Fulfill Your Need For Stats.</small></h1>
+            </div>
+        </div>
+        <div class="table table-condensed">
+            {{=XML(df)}}
         </div>
     </body>
 
