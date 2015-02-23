@@ -139,7 +139,6 @@ def find_stats(name,player_id):
     player_stats['pts'] = pts
     player_stats['+/-'] = plus_minus
     players.append(player_stats.copy())
-    
 
 def stats():
     with open ('applications/ballislife/static/team_players.json') as f:
@@ -158,8 +157,8 @@ def stats():
     df = pd.DataFrame(players,columns = cols)
     print ('=========================')
     print df
-    return df.to_html()
-    #return dict(df=df)
+    df.to_html()
+    return dict(df=df)
 
 def top_players():
     test = 'My Thumbnail'

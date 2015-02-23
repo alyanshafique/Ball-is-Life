@@ -71,7 +71,7 @@
             </div>
         </div>
         <div style="color:black">
-            {{=content}}
+            {{=XML(df)}}
         </div>
     </body>
 

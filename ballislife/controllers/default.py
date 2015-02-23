@@ -157,8 +157,8 @@ def stats():
     df = pd.DataFrame(players,columns = cols)
     print ('=========================')
     print df
-    return df.to_html()
-    #return dict(df=df)
+    df = df.to_html()
+    return dict(df=df)
 
 def top_players():
     test = 'My Thumbnail'
