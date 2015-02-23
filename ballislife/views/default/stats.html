@@ -49,6 +49,23 @@
     .table {
         color: white;
     }
+    .dataframe thead th {
+        background-color: #003366;
+    }
+    .dataframe {
+        border: 3px solid white;
+        background-color:orange;
+        color:white;
+        font-weight:bold;
+        width:100%;
+        position:absolute;
+    }
+    tr:hover td {
+        background:#000
+    }
+    tr:nth-child(even) {
+        background-color: gray;
+    }
 </style>
 <html lang="en">
     <head>
@@ -70,9 +87,10 @@
                 <h1 style="color:black; font-weight: bold">Search Statistics <small style="color: black">Fulfill Your Need For Stats.</small></h1>
             </div>
         </div>
-        <div style="color:black">
+        <div>
             {{=XML(df)}}
         </div>
     </body>
 
 </html>
+<!--style="color:white; font-weight: bold;"-->

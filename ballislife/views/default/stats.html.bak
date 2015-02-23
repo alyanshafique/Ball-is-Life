@@ -1,5 +1,5 @@
 {{extend 'layout.html'}}
-<!--<style>
+<style>
     body {
         background: url(http://hoop76.com/wp-content/uploads/2013/02/NBA-court2.jpg);
         height: 1200px;
@@ -49,12 +49,38 @@
     .table {
         color: white;
     }
-</style>-->
+    .dataframe thead th {
+        background-color: #003366;
+    }
+    .dataframe {
+        border: 3px solid white;
+        background-color:orange;
+        color:white;
+        font-weight:bold;
+        width:100%;
+        position:absolute;
+    }
+    tr:hover td {
+        background:#000
+    }
+    tr:nth-child(even) {
+        background-color: gray;
+    }
+</style>
 <html lang="en">
     <head>
     </head>
     <body>
-        <!--<div class="navbar navbar-fixed-top">
+        
+        <div class="container">
+            <div class="page-header" style="border-bottom: none">
+                <h1 style="color:black; font-weight: bold">Search Statistics <small style="color: black">Fulfill Your Need For Stats.</small></h1>
+            </div>
+        </div>
+        <div>
+            {{=XML(df)}}
+        </div>
+        <div class="navbar navbar-fixed-top">
             <div class="navbar-inner">
                 <a class="brand">Ball is Life</a>
                 <ul class="nav">
@@ -64,15 +90,8 @@
                     <li><a href="top_players.html">Top Players</a></li>
                 </ul>
             </div>
-        </div>-->
-        <div class="container">
-            <div class="page-header" style="border-bottom: none">
-                <h1 style="color:black; font-weight: bold">Search Statistics <small style="color: black">Fulfill Your Need For Stats.</small></h1>
-            </div>
-        </div>
-        <div style="color:black">
-            {{=XML(df)}}
         </div>
     </body>
 
 </html>
+<!--style="color:white; font-weight: bold;"-->

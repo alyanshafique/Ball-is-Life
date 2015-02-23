@@ -57,7 +57,7 @@ def find_stats(name,player_id):
     'Location=&Month=0&OpponentTeamID=0&Outcome=&Period=0&' + \
     'PlayerID='+player_id+'&Season=2014-15&SeasonSegment=&' + \
     'SeasonType=Regular+Season&TeamID=0&VsConference=&VsDivision='"""
-    
+
     url = 'http://stats.nba.com/stats/playerdashboardbygeneralsplits?' + \
     'DateFrom=&DateTo=&GameSegment=&LastNGames=0&LeagueID=00&Location=&' + \
     'MeasureType=Base&Month=0&OpponentTeamID=0&Outcome=&PaceAdjust=N&' + \
@@ -148,8 +148,10 @@ def stats():
     #for x in teams:
     #    for y in teams[x]:
     #        find_stats(y,teams[x][y])
-    find_stats('stephen curry','201939')
-    find_stats('james harden','201935')
+    find_stats('Stephen Curry','201939')
+    find_stats('James Harden','201935')
+    find_stats('Klay Thompson','202691')
+    find_stats('LeBron James','2544')
     #cols = ['name','avg_defender_distance','avg_dribbles','avg_shot_distance','avg_touch_time']
     cols = ['name', 'games', 'wins', 'losses', 'win_pct', 'minutes', 'fgm', 'fga', 'fg_pct', 'fg3m', 'fg3a', 'fg3_pct',
             'ftm', 'fta','ft_pct', 'pf', 'oreb', 'dreb', 'reb', 'ast', 'tov', 'stl', 'blk', 'pts', '+/-']
