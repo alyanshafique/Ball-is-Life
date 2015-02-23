@@ -23,7 +23,7 @@ read_file = filename.read()
 y=json.loads(read_file)
 """
 pd.set_option('display.width', 200)
-pd.options.display.max_colwidth = 100
+pd.set_option('display.max_colwidth', -1)
 players = []
 player_stats = {'name':None,'games':None,'wins':None,'losses':None,'win_pct':None,'minutes':None,'fgm':None,'fga':None,'fg_pct':None,
                 'fg3m':None,'fg3a':None,'fg3_pct':None,'ftm':None,'fta':None,'ft_pct':None,'oreb':None,'dreb':None,'reb':None,'ast':None,
@@ -137,9 +137,8 @@ def find_stats(name,player_id):
     player_stats['blk'] = blk
     player_stats['pf'] = pf
     player_stats['pts'] = pts
-    player_stats['plus_minus'] = plus_minus
+    player_stats['+/-'] = plus_minus
     players.append(player_stats.copy())
-    
 
 def stats():
     with open ('applications/ballislife/static/team_players.json') as f:
@@ -149,15 +148,17 @@ def stats():
     #for x in teams:
     #    for y in teams[x]:
     #        find_stats(y,teams[x][y])
-    find_stats('stephen curry','201939');
+    find_stats('stephen curry','201939')
+    find_stats('james harden','201935')
     #cols = ['name','avg_defender_distance','avg_dribbles','avg_shot_distance','avg_touch_time']
     cols = ['name', 'games', 'wins', 'losses', 'win_pct', 'minutes', 'fgm', 'fga', 'fg_pct', 'fg3m', 'fg3a', 'fg3_pct',
-            'ftm', 'fta','ft_pct', 'pf', 'oreb', 'dreb', 'reb', 'ast', 'tov', 'stl', 'blk', 'pts', 'plus_minus']
+            'ftm', 'fta','ft_pct', 'pf', 'oreb', 'dreb', 'reb', 'ast', 'tov', 'stl', 'blk', 'pts', '+/-']
+    #
     df = pd.DataFrame(players,columns = cols)
     print ('=========================')
-    #print df
-    print df.head()
-    return dict(df=df);
+    print df
+    return df.to_html()
+    #return dict(df=df)
 
 def top_players():
     test = 'My Thumbnail'
