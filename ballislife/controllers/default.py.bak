@@ -11,7 +11,8 @@
 import requests
 import json as simplejson
 import pandas as pd
-
+from players import teams
+import time
 """
 
 Refer: https://docs.python.org/2/library/json.html
@@ -66,6 +67,7 @@ def find_stats(name,player_id):
     
     #Create Dict based on JSON response
     response = requests.get(url)
+    print response.elapsed
     shots = response.json()['resultSets'][0]['rowSet']
     data = simplejson.loads(response.text)
     #print ('================================')
@@ -144,23 +146,35 @@ def stats():
     with open ('applications/ballislife/static/team_players.json') as f:
         data=f.read()
         z=simplejson.dumps(data)
+    q = db.player
     #NBA Stats API using selected player ID
-    #for x in teams:
-    #    for y in teams[x]:
-    #        find_stats(y,teams[x][y])
-    find_stats('Stephen Curry','201939')
-    find_stats('James Harden','201935')
-    find_stats('Klay Thompson','202691')
-    find_stats('LeBron James','2544')
+    """Will continue inserting into db.player
+    for x in teams:
+        for y,z in teams[x].items():
+            db.player.insert(**{'name':y, 'player_id':z})"""
+    #print db.executesql('DELETE (*) FROM player;')
+    #print db.executesql('SELECT * FROM player;')
+        #for y in teams[x]:
+            #db.player.insert(**{})
+            #print teams[x][y]
+    form = SQLFORM.grid(q,
+        fields=[db.player.name, db.player.player_id],csv=False, orderby=db.player.name, ui='jquery-ui')
+    """find_stats('Stephen Curry','201939')
+    #find_stats('James Harden','201935')
+    #find_stats('Klay Thompson','202691')
+    #find_stats('LeBron James','2544')
     #cols = ['name','avg_defender_distance','avg_dribbles','avg_shot_distance','avg_touch_time']
     cols = ['name', 'gp', 'w', 'l', 'win_pct', 'min', 'fgm', 'fga', 'fg_pct', 'fg3m', 'fg3a', 'fg3_pct',
             'ftm', 'fta','ft_pct', 'pf', 'oreb', 'dreb', 'reb', 'ast', 'tov', 'stl', 'blk', 'pts', '+/-']
-    #
     df = pd.DataFrame(players,columns = cols)
     print ('=========================')
     print df
-    df = df.to_html(classes="table table-condensed", classes="table table-hover")
-    return dict(df=df)
+    df = df.to_html(classes="table table-condensed")"""
+    return dict(form=form)
+
+#def view_player(name, player_id):
+    
+    
 
 def top_players():
     test = 'My Thumbnail'

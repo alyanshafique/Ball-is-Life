@@ -53,3 +53,13 @@ CREATE TABLE auth_cas(
     renew CHAR(1)
 );
 success!
+timestamp: 2015-02-23T23:39:53.982527
+CREATE TABLE player(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name CHAR(512),
+    player_id CHAR(512)
+);
+success!
+DELETE FROM player;
+DELETE FROM sqlite_sequence WHERE name='player';
+success!

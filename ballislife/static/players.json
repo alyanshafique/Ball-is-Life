@@ -1,0 +1,102 @@
+{
+  "james_harden": {
+      "name": "James Harden",
+      "player_id": "201935"
+      },
+  "russell_westbrook": {
+      "name": "Russell Westbrook",
+      "player_id": "201566"
+      },
+  "lebron_james": {
+      "name": "LeBron James",
+      "player_id": "2544"
+      },
+  "anthony_davis": {
+      "name": "Anthony Davis",
+      "player_id": "203076"
+      },
+  "demarcus_cousins": {
+      "name": "DeMarcus Cousins",
+      "player_id": "202326"
+      },
+  "stephen_curry": {
+      "name": "Stephen Curry",
+      "player_id": "201939"
+      },
+  "lamarcus_aldridge": {
+      "name": "LaMarcus Aldridge",
+      "player_id": "200746"
+      },
+  "blake_griffin": {
+      "name": "Blake Griffin",
+      "player_id": "201933"
+      },
+  "klay_thompson": {
+      "name": "Klay Thompson",
+      "player_id": "202691"
+      },
+  "kyrie_irving": {
+      "name": "Kyrie Irving",
+      "player_id": "202681"
+      },
+  "damian_lillard": {
+      "name": "Damien Lillard",
+      "player_id": "203081"
+      },
+  "jimmy_butler": {
+      "name": "Jimmy Butler",
+      "player_id": "202710"
+      },
+  "rudy_gay": {
+      "name": "Rudy Gay",
+      "player_id": "200752"
+      },
+  "nikola_vucevic": {
+      "name": "Nikola Vucevic",
+      "player_id": "202696"
+      },
+  "gordon_hayward": {
+      "name": "Gordon Hayward",
+      "player_id": "202330"
+      },
+  "monta_ellis": {
+      "name": "Monta Ellis",
+      "player_id": "101145"
+      },
+  "kemba_walker": {
+      "name": "Kemba Walker",
+      "player_id": "202689"
+      },
+  "derrick_rose": {
+      "name": "Derrick Rose",
+      "player_id": "201565"
+      },
+  "pau_gasol": {
+      "name": "Pau Gasol",
+      "player_id": "2200"
+      },
+  "kyle_lowry": {
+      "name": "Kyle Lowry",
+      "player_id": "200768"
+      },
+  "marc_gasol": {
+      "name": "Marc Gasol",
+      "player_id": "201188"
+      },
+  "dirk_nowitzki": {
+      "name": "Dirk Nowitzki",
+      "player_id": "1717"
+      },
+  "brandon_knight": {
+      "name": "Brandon Knight",
+      "player_id": "202688"
+      },
+  "chris_paul": {
+      "name": "Chris Paul",
+      "player_id": "101108"
+      },
+  "john_wall": {
+      "name": "John Wall",
+      "player_id": "202322"
+      }
+}
