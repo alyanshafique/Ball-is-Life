@@ -63,3 +63,12 @@ success!
 DELETE FROM player;
 DELETE FROM sqlite_sequence WHERE name='player';
 success!
+timestamp: 2015-02-24T10:38:18.468427
+ALTER TABLE player ADD team CHAR(512);
+success!
+DELETE FROM player;
+DELETE FROM sqlite_sequence WHERE name='player';
+success!
+DELETE FROM player;
+DELETE FROM sqlite_sequence WHERE name='player';
+success!

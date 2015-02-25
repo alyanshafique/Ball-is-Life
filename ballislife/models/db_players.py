@@ -2,4 +2,5 @@
 db.define_table('player',
                 Field('name'),
                 Field('player_id'),
+                Field('team')
                )

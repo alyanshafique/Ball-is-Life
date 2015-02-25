@@ -52,7 +52,15 @@ def scores():
 def team_players():
     return(dict(a="a"))
 
-def find_stats(name,player_id):
+def player_info(name, player_id):
+    url = 'http://stats.nba.com/stats/commonplayerinfo?LeagueID=00&' + \
+    'PlayerID=201939&SeasonType=Regular+Season'
+    response = requests.get(url)
+    #print response.elapsed
+    shots = response.json()['resultSets'][0]['rowSet']
+    data = simplejson.loads(response.text)
+
+def find_current_stats(name,player_id):
     """url = 'http://stats.nba.com/stats/playerdashptshotlog?'+ \
     'DateFrom=&DateTo=&GameSegment=&LastNGames=0&LeagueID=00&' + \
     'Location=&Month=0&OpponentTeamID=0&Outcome=&Period=0&' + \
@@ -67,7 +75,7 @@ def find_stats(name,player_id):
     
     #Create Dict based on JSON response
     response = requests.get(url)
-    print response.elapsed
+    #print response.elapsed
     shots = response.json()['resultSets'][0]['rowSet']
     data = simplejson.loads(response.text)
     #print ('================================')
@@ -151,14 +159,20 @@ def stats():
     """Will continue inserting into db.player
     for x in teams:
         for y,z in teams[x].items():
-            db.player.insert(**{'name':y, 'player_id':z})"""
+            db.player.insert(**{'name':y, 'player_id':z, 'team':x})"""
     #print db.executesql('DELETE (*) FROM player;')
     #print db.executesql('SELECT * FROM player;')
         #for y in teams[x]:
             #db.player.insert(**{})
             #print teams[x][y]
+    def generate_view_button(row):
+        view_page = A('View', _class='btn', _href=URL('default', 'view', args=[row.id]))
+        return view_page
+    links = [
+        dict(header='', body = generate_view_button),
+        ]
     form = SQLFORM.grid(q,
-        fields=[db.player.name, db.player.player_id],csv=False, orderby=db.player.name)
+        fields=[db.player.name, db.player.team],csv=False, orderby=db.player.name, details=False, links=links)
     """find_stats('Stephen Curry','201939')
     #find_stats('James Harden','201935')
     #find_stats('Klay Thompson','202691')
@@ -172,9 +186,15 @@ def stats():
     df = df.to_html(classes="table table-condensed")"""
     return dict(form=form)
 
-#def view_player(name, player_id):
-    
-    
+def view():
+    p = db.player(request.args(0))
+    find_current_stats(p.name, p.player_id)
+    cols = ['name','avg_defender_distance','avg_dribbles','avg_shot_distance','avg_touch_time']
+    cols = ['name', 'gp', 'w', 'l', 'win_pct', 'min', 'fgm', 'fga', 'fg_pct', 'fg3m', 'fg3a', 'fg3_pct',
+            'ftm', 'fta','ft_pct', 'pf', 'oreb', 'dreb', 'reb', 'ast', 'tov', 'stl', 'blk', 'pts', '+/-']
+    df = pd.DataFrame(players,columns = cols)
+    df = df.to_html(classes="table table-condensed")
+    return dict(df=df)    
 
 def top_players():
     test = 'My Thumbnail'
