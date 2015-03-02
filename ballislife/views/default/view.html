@@ -84,10 +84,10 @@
             <div class="navbar-inner">
                 <a class="brand">Ball is Life</a>
                 <ul class="nav">
-                    <li><a href="index.html">Home</a>
-                    <li><a href="scores.html">Live Scores</a></li>
-                    <li class="active"><a href="stats.html">Stats</a></li>
-                    <li><a href="top_players.html">Top Players</a></li>
+                    <li><a href="../index.html">Home</a>
+                    <li><a href="../scores.html">Live Scores</a></li>
+                    <li class="active"><a href="../stats.html">Stats</a></li>
+                    <li><a href="../top_players.html">Top Players</a></li>
                 </ul>
             </div>
         </div>
@@ -97,9 +97,18 @@
             </div>
         </div>
         <div class="table table-condensed">
-            {{=XML(df)}}
+            {{=A('← Back to List', _class='btn', _href=URL('default', 'stats'))}}
+            <h3>
+                Player Info
+            </h3>
+            {{=XML(player_info_df)}}
+        </div>
+        <div class="table table-condensed" style="margin-top: 100px">
+            <h3>
+                Regular Season
+            </h3>
+            {{=XML(reg_stats_df)}}
         </div>
     </body>
 
 </html>
-<!--style="color:white; font-weight: bold;"-->

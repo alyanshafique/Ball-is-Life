@@ -53,6 +53,7 @@
     .table .table-condensed {
         color: black;
         background-color: white;
+        margin-top: 30px;
     }
     .dataframe thead th {
         background-color: #003366;
@@ -66,9 +67,11 @@
         width:100%;
         position:absolute;
     }
+    tr {
+       text-transform: capitalize;
+    }
     tr:hover td {
         background:#DFDFDF;
-        text-transform: capitalize;
     }
     tr:nth-child(even) {
         background-color: #DFDFDF;
@@ -82,10 +85,10 @@
             <div class="navbar-inner">
                 <a class="brand">Ball is Life</a>
                 <ul class="nav">
-                    <li><a href="index.html">Home</a>
-                    <li><a href="scores.html">Live Scores</a></li>
-                    <li class="active"><a href="stats.html">Stats</a></li>
-                    <li><a href="top_players.html">Top Players</a></li>
+                    <li><a href="../index.html">Home</a>
+                    <li><a href="../scores.html">Live Scores</a></li>
+                    <li class="active"><a href="../stats.html">Stats</a></li>
+                    <li><a href="../top_players.html">Top Players</a></li>
                 </ul>
             </div>
         </div>
@@ -95,7 +98,17 @@
             </div>
         </div>
         <div class="table table-condensed">
-            {{=XML(df)}}
+            <h3>
+                Player Info
+            </h3>
+            {{=A('← Back to List', _class='btn', _href=URL('default', 'stats'))}}
+            {{=XML(player_info_df)}}
+        </div>
+        <div class="table table-condensed">
+            <h3>
+                Regular Season
+            </h3>
+            {{=XML(reg_stats_df)}}
         </div>
     </body>
 

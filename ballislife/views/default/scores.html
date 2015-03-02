@@ -47,9 +47,35 @@
         color: white;
     }
     .navbar-default .navbar-nav > .active > a:focus
+    .table .table-condensed {
+        color: black;
+        background-color: white;
+    }
+    .dataframe thead th {
+        background-color: #003366;
+        color:white;
+        text-transform: uppercase;
+    }
+    .dataframe {
+        border: 3px solid white;
+        color:black;
+        font-weight:bold;
+        width:100%;
+        position:absolute;
+    }
+    tr {
+       text-transform: capitalize;
+    }
+    tr:hover td {
+        background:#DFDFDF;
+    }
+    tr:nth-child(even) {
+        background-color: #DFDFDF;
+    }
 </style>
 <html lang="en">
     <head>
+    	<meta http-equiv="refresh" content="30;URL=scores.html#bottom" />
     </head>
     <body>
         <div class="navbar navbar-fixed-top">
@@ -67,6 +93,9 @@
             <div class="page-header" style="border-bottom: none">
                 <h1 style="color:black; font-weight: bold">Live Scores</h1>
             </div>
+        </div>
+        <div class="table table-condensed">
+            {{=XML(live_games_df)}}
         </div>
     </body>
 
