@@ -93,8 +93,13 @@
                 <h1 style="color:black; font-weight: bold">Search Statistics <small style="color: black">Fulfill Your Need For Stats.</small></h1>
             </div>
         </div>
-        <div class="color_row">
-            {{=form}}
+        <div>
+            <h3>Team Stats</h3>
+            {{=A('Team Stats', _class='btn', _href=URL('default', 'team_stats'))}}
+        </div>
+        <div>
+            <h3>Player Stats</h3>
+            {{=A('Player Stats', _class='btn', _href=URL('default', 'player_stats'))}}
         </div>
     </body>
 

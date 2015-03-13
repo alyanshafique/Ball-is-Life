@@ -47,6 +47,26 @@
         color: white;
     }
     .navbar-default .navbar-nav > .active > a:focus
+    .table .table-hover {
+        position:absolute;
+    }
+    table {
+    	position:absolute;
+    }
+    tr {
+       text-transform: capitalize;
+       font-family: Futura;
+    }
+    tr:hover td {
+        background:#DFDFDF;
+    }
+    tr:nth-child(even) {
+        background-color: #DFDFDF;
+    }
+    tr:nth-child(odd) {
+        background-color: white;
+    }  background-color: white;
+    }
 </style>
 <html lang="en">
     <head>
@@ -65,8 +85,21 @@
         </div>
         <div class="container">
             <div class="page-header" style="border-bottom: none">
-                <h1 style="color:black; font-weight: bold">Welcome <small style="color: black">Find All Your NBA Related Information Here.</small></h1>
+                <h1 style="color:black; font-weight: bold">Welcome <small style="color: black">Find Your NBA Related Information Here.</small></h1>
             </div>
+        </div>
+        <div class="table table-hover">
+        	<h1>Standings</h>
+        	<h3>Eastern Conference</h3>
+        	{{=TABLE(TR(TH(eastHeaders[5]), TH(eastHeaders[6]), TH(eastHeaders[7]),TH(eastHeaders[8]), 
+        		TH('WIN %'),TH('HOME RECORD'),TH('ROAD RECORD')),
+            	*[TR(row[5],row[6],row[7],row[8],row[9],row[10],row[11]) for row in eastRows],_class='table')}}
+        </div>
+        <div class="table table-hover" style="margin-top:650px;">
+        	<h3>Western Conference</h3>
+        	{{=TABLE(TR(TH(westHeaders[5]), TH(westHeaders[6]), TH(westHeaders[7]),TH(westHeaders[8]), 
+        		TH('WIN %'),TH('HOME RECORD'),TH('ROAD RECORD')),
+            	*[TR(row[5],row[6],row[7],row[8],row[9],row[10],row[11]) for row in westRows],_class='table')}}
         </div>
     </body>
 </html>

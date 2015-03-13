@@ -50,30 +50,25 @@
         background-color: white;
         font-family: Impact;
     }
-    .table .table-condensed {
+    .table .table-hover {
         color: black;
         background-color: white;
     }
-    .dataframe thead th {
-        background-color: #003366;
-        color:white;
-        text-transform: uppercase;
-    }
-    .dataframe {
-        border: 3px solid white;
-        color:black;
-        font-weight:bold;
-        width:100%;
-        position:absolute;
+    table {
+    	position: absolute;
     }
     tr {
        text-transform: capitalize;
+       font-family: Futura;
     }
     tr:hover td {
         background:#DFDFDF;
     }
     tr:nth-child(even) {
         background-color: #DFDFDF;
+    }
+    tr:nth-child(odd) {
+        background-color: white;
     }
 </style>
 <html lang="en">
@@ -93,21 +88,32 @@
         </div>
         <div class="container">
             <div class="page-header" style="border-bottom: none">
-                <h1 style="color:black; font-weight: bold">Search Statistics <small style="color: black">Fulfill Your Need For Stats.</small></h1>
+                <h1 style="color:black; font-weight: bold; text-transform:capitalize;">{{=name}}</h1>
             </div>
         </div>
-        <div class="table table-condensed">
+        <div class="table table-hover">
             {{=A('← Back to List', _class='btn', _href=URL('default', 'stats'))}}
+            {{=A('Team Stats', _class='btn', _href=URL('default', 'team_stats'))}}
             <h3>
                 Player Info
             </h3>
-            {{=XML(player_info_df)}}
+            {{=TABLE(TR(TH(infoHeaders[1]), TH(infoHeaders[2]), TH(infoHeaders[6]),TH(infoHeaders[7]), TH(infoHeaders[8]),
+            	TH(infoHeaders[10]), TH(infoHeaders[11]), TH(infoHeaders[12]),TH(infoHeaders[13]), TH(infoHeaders[14]),TH(infoHeaders[17])),
+            	*[TR(row[1],row[2],row[6],row[7],row[8],row[10],row[11],row[12],
+            	    row[13],row[14],row[17]) for row in infoRows],_class='table')}}
         </div>
-        <div class="table table-condensed" style="margin-top: 100px">
+        <div class="table table-hover" style="margin-top: 100px">
             <h3>
                 Regular Season
             </h3>
-            {{=XML(reg_stats_df)}}
+            {{=TABLE(TR(TH(headers[2]), TH(headers[3]), TH(headers[4]),TH(headers[5]), TH(headers[6]),
+            	TH(headers[7]), TH(headers[8]), TH(headers[9]),TH(headers[10]), TH(headers[11]),TH(headers[12]),
+            	TH(headers[13]),TH(headers[14]), TH(headers[15]),TH(headers[16]),TH(headers[17]),
+            	TH(headers[18]),TH(headers[19]), TH(headers[20]),TH(headers[21]),TH(headers[22]),
+            	TH(headers[24]),TH(headers[26]),TH(headers[27])),
+            	*[TR(row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],
+            	    row[10],row[11],row[12],row[13],row[14],row[15],row[16],row[17],row[18],row[19],
+            	    row[20],row[21],row[22],row[24],row[26],row[27]) for row in rows],_class='table')}}
         </div>
     </body>
 

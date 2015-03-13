@@ -1,0 +1,100 @@
+{{extend 'layout.html'}}
+<style>
+    body {
+        background: url(http://hoop76.com/wp-content/uploads/2013/02/NBA-court2.jpg);
+        height: 1200px;
+    }
+    div {
+        display: block;
+    }
+    .container {
+        margin-top: 75px;
+    }
+    .navbar-inner{
+        background-image: url(http://images.fineartamerica.com/images-medium-large/1-basketball--leather-close-up-ben-haslam.jpg);
+        height: 100px;
+        border-color: black;
+        text-align: center;
+    }
+    .navbar .nav {
+        float: right;
+    }
+    .navbar .brand {
+        color: #CCCCCC;
+        margin-top: 55px;
+        font-family: Brush Script MT;
+        font-size: 75px;
+    }
+    .navbar .nav > li > a {
+        color:  white;
+        margin-top: 60px;
+        font-family: Charter;
+        font-weight: bold;
+        font-size: 20px;
+        text-shadow: none;
+        text-align: center;
+    }
+    .navbar .nav > li.active > a {
+        color: black;
+    }
+    .navbar .nav > li.active > a:hover {
+        background-color: black;
+        color: white;
+    }
+    .navbar .nav > li > a:hover {
+        background-color: black;
+        color: white;
+    }
+    .navbar-default .navbar-nav > .active > a:focus
+    .web2py_console form {
+        background-color: white;
+        font-family: Impact;
+    }
+    table {
+    	position: absolute;
+    }
+    tr {
+       text-transform: capitalize;
+       font-family: Futura;
+    }
+    tr:hover td {
+        background:#DFDFDF;
+    }
+    tr:nth-child(even) {
+        background-color: #DFDFDF;
+    }
+    tr:nth-child(odd) {
+        background-color: white;
+    }
+</style>
+<html lang="en">
+    <head>
+    </head>
+    <body>
+        <div class="navbar navbar-fixed-top">
+            <div class="navbar-inner">
+                <a class="brand">Ball is Life</a>
+                <ul class="nav">
+                    <li><a href="index.html">Home</a>
+                    <li><a href="scores.html">Live Scores</a></li>
+                    <li class="active"><a href="stats.html">Stats</a></li>
+                    <li><a href="top_players.html">Top Players</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="container">
+            <div class="page-header" style="border-bottom: none">
+                <h1 style="color:black; font-weight: bold">Team Stats </h1>
+            </div>
+        </div>
+        <div>
+        	{{=A('← Back', _class='btn', _href=URL('default', 'stats'))}}
+            {{=TABLE(TR(TH('TEAM'), TH(headers[2]), TH(headers[3]),TH(headers[4]), TH(headers[5]),
+            	TH('ORTG'), TH('DRTG'), TH('NRTG'),TH(headers[10]), TH(headers[11]),TH(headers[14]),
+            	TH(headers[15]),TH(headers[17]), TH(headers[18]),TH(headers[19])),
+            	*[TR(row[1],row[2],row[3],row[4],row[5],row[7],row[8],row[9],
+            	    row[10],row[11],row[14],row[15],row[17],row[18],row[19]) for row in rows],_class='table')}}
+        </div>
+    </body>
+
+</html>

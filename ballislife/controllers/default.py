@@ -16,6 +16,7 @@ import urllib2
 import re
 from lxml import etree
 import xml.etree.ElementTree as ElementTree
+import time
 """
 
 Refer: https://docs.python.org/2/library/json.html
@@ -40,16 +41,28 @@ play_by_play_info = {'quarter':None,'time':None,'home':None,'away':None}
 #player_stats = {'name':None,'avg_dribbles':None,'avg_touch_time':None,'avg_shot_distance':None,'avg_defender_distance':None}
 
 def index():
-    """
-    example action using the internationalization operator T and flash
-    rendered by views/default/index.html or views/generic.html
+    day = time.strftime('%d')
+    month = time.strftime('%m')
+    year = time.strftime('%Y')
+    url = 'http://stats.nba.com/standings/#!/' + day + '/' + month + '/' + year
+    headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.99 Safari/537.36'}
+    with requests.Session() as session:
+        session.headers = headers
+        session.get(url, headers=headers)
 
-    if you need a simple wiki simply replace the two lines below with:
-    return auth.wiki()
-    """
-    test = 'My Thumbnail'
-    response.flash = T("Welcome to web2py!")
-    return dict(message=T('Hello World'))
+        params = {
+            'DayOffset': '0',
+            'GameDate': day + '/' + month + '/' + year,
+            'LeagueID': '00'
+        }
+    
+        response = session.get('http://stats.nba.com/stats/scoreboard?DayOffset=0&LeagueID=00&gameDate=03%2F13%2F2015', params=params)
+        results = response.json()
+        eastHeaders = results['resultSets'][4]['headers']
+        eastRows = results['resultSets'][4]['rowSet']
+        westHeaders = results['resultSets'][5]['headers']
+        westRows = results['resultSets'][5]['rowSet']
+    return dict(eastHeaders=eastHeaders,eastRows=eastRows,westHeaders=westHeaders,westRows=westRows)
 
 
 def get_live_scores():
@@ -155,9 +168,6 @@ def scores():
     return dict(live_games_df=live_games_df)
 
 
-def team_players():
-    return(dict(a="a"))
-
 def player_info(player_id):
     url = 'http://stats.nba.com/stats/commonplayerinfo?LeagueID=00&' + \
     'PlayerID='+player_id+'&SeasonType=Regular+Season'
@@ -166,7 +176,7 @@ def player_info(player_id):
     data = simplejson.loads(response.text)
     headers = data['resultSets'][0]['headers']
     shot_data = data['resultSets'][0]['rowSet']
-    player_info_df = pd.DataFrame(shot_data,columns=headers)
+    """player_info_df = pd.DataFrame(shot_data,columns=headers)
     first_name = player_info_df['FIRST_NAME'].to_string()
     last_name = player_info_df['LAST_NAME'].to_string()
     jersey = player_info_df['JERSEY'].mean(axis=1)
@@ -188,7 +198,8 @@ def player_info(player_id):
     player_common_info['weight'] = weight
     player_common_info['birthdate'] = birthdate
     players_info.append(player_common_info.copy())
-    print player_common_info
+    print player_common_info"""
+    #return(headers=headers,shot_data=shot_data)
 
 def find_current_stats(player_id):
     """url = 'http://stats.nba.com/stats/playerdashptshotlog?'+ \
@@ -210,15 +221,15 @@ def find_current_stats(player_id):
     #print ('================================')
     #print data
     #Create df from data and find averages
-    headers = data['resultSets'][0]['headers']
-    shot_data = data['resultSets'][0]['rowSet']
-    reg_stats_df = pd.DataFrame(shot_data,columns=headers)
+    infoheaders = data['resultSets'][0]['headers']
+    hot_data = data['resultSets'][0]['rowSet']
+    """reg_stats_df = pd.DataFrame(shot_data,columns=headers)
     #print ('+++++++++++++++++++++++++++++++++')
     #print df
-    """avg_def = df['CLOSE_DEF_DIST'].mean(axis=1)
+    avg_def = df['CLOSE_DEF_DIST'].mean(axis=1)
     avg_dribbles = df['DRIBBLES'].mean(axis=1)
     avg_shot_distance = df['SHOT_DIST'].mean(axis=1)
-    avg_touch_time = df['TOUCH_TIME'].mean(axis=1)"""
+    avg_touch_time = df['TOUCH_TIME'].mean(axis=1)
     gp = reg_stats_df['GP'].mean(axis=1)
     w = reg_stats_df['W'].mean(axis=1)
     l = reg_stats_df['L'].mean(axis=1)
@@ -245,11 +256,11 @@ def find_current_stats(player_id):
     plus_minus = reg_stats_df['PLUS_MINUS'].mean(axis=1)
     #add averages to dictionary
     #player_stats['name'] = name
-    """player_stats['avg_defender_distance']=avg_def
+    player_stats['avg_defender_distance']=avg_def
     player_stats['avg_shot_distance'] = avg_shot_distance
     player_stats['avg_touch_time'] = avg_touch_time
     player_stats['avg_dribbles'] = avg_dribbles
-    players.append(player_stats.copy())"""
+    players.append(player_stats.copy())
     player_stats['gp'] = gp
     player_stats['w']= w
     player_stats['l'] = l
@@ -277,27 +288,105 @@ def find_current_stats(player_id):
     player_stats['pf'] = pf
     player_stats['pts'] = pts
     player_stats['+/-'] = plus_minus
-    players.append(player_stats.copy())
+    players.append(player_stats.copy())"""
+    #return(infoheaders=infoheaders,hot_data=hot_data)
+    
+def team_stats():
+    url = "http://stats.nba.com/league/team/#!/advanced/"
+    headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.99 Safari/537.36'}
+
+    with requests.Session() as session:
+        session.headers = headers
+        session.get(url, headers=headers)
+
+        params = {
+            'DateFrom': '',
+            'DateTo': '',
+            'GameScope': '',
+            'GameSegment': '',
+            'LastNGames': '0',
+            'LeagueID': '00',
+            'Location': '',
+            'MeasureType': 'Advanced',
+            'Month': '0',
+            'OpponentTeamID': '0',
+            'Outcome': '',
+            'PaceAdjust': 'N',
+            'PerMode': 'Totals',
+            'Period': '0',
+            'PlayerExperience': '',
+            'PlayerPosition': '',
+            'PlusMinus': 'N',
+            'Rank': 'N',
+            'Season': '2014-15',
+            'SeasonSegment': '',
+            'SeasonType': 'Regular Season',
+            'StarterBench': '',
+            'VsConference': '',
+            'VsDivision': ''
+        }
+    
+        response = session.get('http://stats.nba.com/stats/leaguedashteamstats', params=params)
+        results = response.json()
+        headers = results['resultSets'][0]['headers']
+        rows = results['resultSets'][0]['rowSet']
+    return dict(headers=headers, rows=rows)
+        
 
 def view():
     p = db.player(request.args(0))
-    find_current_stats(p.player_id)
-    player_info(p.player_id)
-    player_info_cols = ['first_name','last_name','jersey','position','team','experience',
-                      'school','height','weight','birthdate']
-    reg_stats_cols = ['gp', 'w', 'l', 'win_pct', 'min', 'fgm', 'fga', 'fg_pct', 'fg3m', 'fg3a', 'fg3_pct',
-            'ftm', 'fta','ft_pct', 'pf', 'oreb', 'dreb', 'reb', 'ast', 'tov', 'stl', 'blk', 'pts', '+/-']
-    player_info_df = pd.DataFrame(players_info, columns = player_info_cols)
-    player_info_df = player_info_df.to_html(classes="table table-condensed",index=False)
-    #print player_info_df
-    reg_stats_df = pd.DataFrame(players,columns = reg_stats_cols)
-    reg_stats_df = reg_stats_df.to_html(classes="table table-condensed", index=False)
-    return dict(player_info_df=player_info_df,reg_stats_df=reg_stats_df)
+    url = 'http://stats.nba.com/player/#!/' + p.player_id + '/stats/'
+    headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.99 Safari/537.36'}
 
-def stats():
-    with open ('applications/ballislife/static/team_players.json') as f:
-        data=f.read()
-        z=simplejson.dumps(data)
+    with requests.Session() as session:
+        session.headers = headers
+        session.get(url, headers=headers)
+
+        params = {
+            'DateFrom': '',
+            'DateTo': '',
+            'GameSegment': '',
+            'LastNGames': '0',
+            'LeagueID': '00',
+            'Location': '',
+            'MeasureType': 'Base',
+            'Month': '0',
+            'OpponentTeamID': '0',
+            'Outcome': '',
+            'PaceAdjust': 'N',
+            'PerMode': 'PerGame',
+            'Period': '0',
+            'PlayerID': p.player_id,
+            'PlusMinus': 'N',
+            'Rank': 'N',
+            'Season': '2014-15',
+            'SeasonSegment': '',
+            'SeasonType': 'Regular Season',
+            'VsConference': '',
+            'VsDivision': ''
+        }
+    
+        response = session.get('http://stats.nba.com/stats/playerdashboardbygeneralsplits?DateFrom=&DateTo=&GameSegment=' + 
+                               '&LastNGames=0&LeagueID=00&Location=&MeasureType=Base&Month=0&OpponentTeamID=0&Outcome=&' + 
+                               'PaceAdjust=N&PerMode=PerGame&Period=0&PlayerID='+ p.player_id + '&PlusMinus=N&Rank=N&Season=2014-15&' + 
+                               'SeasonSegment=&SeasonType=Regular+Season&VsConference=&VsDivision=', params=params)
+        results = response.json()
+        headers = results['resultSets'][0]['headers']
+        rows = results['resultSets'][0]['rowSet']
+        
+        params = {
+            'PlayerID': p.player_id,
+            'LeagueID': '00'
+        }
+    
+        response = session.get('http://stats.nba.com/stats/commonplayerinfo?LeagueID=00&PlayerID='+p.player_id+'&SeasonType=Regular+Season', params=params)
+        results = response.json()
+        infoHeaders = results['resultSets'][0]['headers']
+        infoRows = results['resultSets'][0]['rowSet']
+        name = p.name
+    return dict(headers=headers, rows=rows,infoHeaders=infoHeaders,infoRows=infoRows, name=name)
+
+def player_stats():
     q = db.player
     #NBA Stats API using selected player ID
     """Will continue inserting into db.player
@@ -330,11 +419,53 @@ def stats():
     df = df.to_html(classes="table table-condensed")"""
     return dict(form=form)
 
-def top_players():
-    df = pd.read_json('http://stats.nba.com/stats/homepagev2?GameScope=Season&LeagueID=00&PlayerOrTeam=Player&PlayerScope=All+Players&Season=2014-15&SeasonType=Regular+Season&StatType=Traditional')
-    df[['created_at', 'title', 'body', 'comments']]
-    print df
+def stats():
+    test = 'My Thumbnail'
+    response.flash = T("Welcome to web2py!")
     return dict(message=T('Hello World'))
+
+
+def top_players():
+    url = "http://stats.nba.com/"
+    headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.99 Safari/537.36'}
+
+    with requests.Session() as session:
+        session.headers = headers
+        session.get(url, headers=headers)
+
+        params = {
+            'GameScope': 'Season',
+            'LeagueID': '00',
+            'PlayerOrTeam': 'Player',
+            'PlayerScope': 'All Players',
+            'Season': '2014-15',
+            'SeasonType': 'Regular Season',
+            'StatType': 'Traditional'
+        }
+    
+        response = session.get('http://stats.nba.com/stats/homepagev2?GameScope=Season&LeagueID=00&PlayerOrTeam=Player' + 
+                               '&PlayerScope=All+Players&Season=2014-15&SeasonType=Regular+Season&StatType=Traditional', params=params)
+        results = response.json()
+        pointHeaders = results['resultSets'][0]['headers']
+        pointRows = results['resultSets'][0]['rowSet']
+        reboundHeaders = results['resultSets'][1]['headers']
+        reboundRows = results['resultSets'][1]['rowSet']
+        assistHeaders = results['resultSets'][2]['headers']
+        assistRows = results['resultSets'][2]['rowSet']
+        stealHeaders = results['resultSets'][3]['headers']
+        stealRows = results['resultSets'][3]['rowSet']
+        fgHeaders = results['resultSets'][4]['headers']
+        fgRows = results['resultSets'][4]['rowSet']
+        ftHeaders = results['resultSets'][5]['headers']
+        ftRows = results['resultSets'][5]['rowSet']
+        threePtHeaders = results['resultSets'][6]['headers']
+        threePtRows = results['resultSets'][6]['rowSet']
+        blockHeaders = results['resultSets'][7]['headers']
+        blockRows = results['resultSets'][7]['rowSet']
+    return dict(pointHeaders=pointHeaders,pointRows=pointRows,reboundHeaders=reboundHeaders,reboundRows=reboundRows,
+                assistHeaders=assistHeaders,assistRows=assistRows,stealHeaders=stealHeaders,stealRows=stealRows,
+                fgHeaders=fgHeaders,fgRows=fgRows,ftHeaders=ftHeaders,ftRows=ftRows,threePtHeaders=threePtHeaders,
+                threePtRows=threePtRows,blockHeaders=blockHeaders,blockRows=blockRows)
 
 def user():
     """

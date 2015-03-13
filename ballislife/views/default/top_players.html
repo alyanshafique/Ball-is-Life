@@ -47,9 +47,29 @@
         color: white;
     }
     .navbar-default .navbar-nav > .active > a:focus
+    .table .table-hover {
+        position:absolute;
+    }
+    table {
+    	position: absolute;
+    }
+    tr {
+       text-transform: capitalize;
+       font-family: Futura;
+    }
+    tr:hover td {
+        background:#DFDFDF;
+    }
+    tr:nth-child(even) {
+        background-color: #DFDFDF;
+    }
+    tr:nth-child(odd) {
+        background-color: white;
+    }
 </style>
 <html lang="en">
     <head>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
     </head>
     <body>
         <div class="navbar navbar-fixed-top">
@@ -65,9 +85,56 @@
         </div>
         <div class="container">
             <div class="page-header" style="border-bottom: none">
-                <h1>Stat Leaders</h1>
+                <h1>League Leaders</h1>
             </div>
         </div>
+        <div>
+        	<h3>Points Per Game</h3>
+        	{{=TABLE(TR(TH(pointHeaders[0]), TH(pointHeaders[2]), TH('TEAM'),TH('JERSEY'), 
+        		TH('POSITION'),TH(pointHeaders[8])),
+            	*[TR(row[0],row[2],row[5],row[6],row[7],row[8]) for row in pointRows],_class='table')}}
+        </div>
+        <div style="margin-top:250px;">
+        	<h3>Rebounds Per Game</h3>
+        	{{=TABLE(TR(TH(reboundHeaders[0]), TH(reboundHeaders[2]), TH('TEAM'),TH('JERSEY'), 
+        		TH('POSITION'),TH(reboundHeaders[8])),
+            	*[TR(row[0],row[2],row[5],row[6],row[7],row[8]) for row in reboundRows],_class='table')}}
+        </div>
+        <div style="margin-top:250px;">
+        	<h3>Assists Per Game</h3>
+        	{{=TABLE(TR(TH(assistHeaders[0]), TH(assistHeaders[2]), TH('TEAM'),TH('JERSEY'), 
+        		TH('POSITION'),TH(assistHeaders[8])),
+            	*[TR(row[0],row[2],row[5],row[6],row[7],row[8]) for row in assistRows],_class='table')}}
+        </div>
+        <div style="margin-top:250px;">
+        	<h3>Steals Per Game</h3>
+        	{{=TABLE(TR(TH(stealHeaders[0]), TH(stealHeaders[2]), TH('TEAM'),TH('JERSEY'), 
+        		TH('POSITION'),TH(stealHeaders[8])),
+            	*[TR(row[0],row[2],row[5],row[6],row[7],row[8]) for row in stealRows],_class='table')}}
+        </div>
+        <div style="margin-top:250px;">
+        	<h3>Field Goal %</h3>
+        	{{=TABLE(TR(TH(fgHeaders[0]), TH(fgHeaders[2]), TH('TEAM'),TH('JERSEY'), 
+        		TH('POSITION'),TH('FG %')),
+            	*[TR(row[0],row[2],row[5],row[6],row[7],row[8]) for row in fgRows],_class='table')}}
+        </div>
+        <div style="margin-top:250px;">
+        	<h3>Free Throw %</h3>
+        	{{=TABLE(TR(TH(ftHeaders[0]), TH(ftHeaders[2]), TH('TEAM'),TH('JERSEY'), 
+        		TH('POSITION'),TH('FT %')),
+            	*[TR(row[0],row[2],row[5],row[6],row[7],row[8]) for row in ftRows],_class='table')}}
+        </div>
+        <div style="margin-top:250px;">
+        	<h3>3-Pt %</h3>
+        	{{=TABLE(TR(TH(threePtHeaders[0]), TH(threePtHeaders[2]), TH('TEAM'),TH('JERSEY'), 
+        		TH('POSITION'),TH('3-PT %')),
+            	*[TR(row[0],row[2],row[5],row[6],row[7],row[8]) for row in threePtRows],_class='table')}}
+        </div>
+        <div style="margin-top:250px;">
+        	<h3>Blocks Per Game</h3>
+        	{{=TABLE(TR(TH(blockHeaders[0]), TH(blockHeaders[2]), TH('TEAM'),TH('JERSEY'), 
+        		TH('POSITION'),TH(blockHeaders[8])),
+            	*[TR(row[0],row[2],row[5],row[6],row[7],row[8]) for row in blockRows],_class='table')}}
+        </div>
     </body>
-
 </html>
