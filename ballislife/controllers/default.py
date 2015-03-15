@@ -161,11 +161,53 @@ def get_live_scores():
 
 
 def scores():
-    get_live_scores()
+    """get_live_scores()
     live_games_cols = ['QUARTER', 'TIME', 'EVENT']
     live_games_df = pd.DataFrame(live_games,columns = live_games_cols)
     live_games_df = live_games_df.to_html(classes="table table-condensed", index=False)
     return dict(live_games_df=live_games_df)
+    {{=XML(live_games_df)}}
+     <div class="table table-hover">
+            {{=TABLE(TR(TH(''),TH('TEAM'),TH('RECORD'), 
+                TH('1'),TH('2'),TH('3'),TH('4')),
+                TR(('AWAY'),rows[0][5],rows[0][6],rows[0][7],rows[0][8],rows[0][9],rows[0][10]),
+                TR(('HOME'),rows[1][5],rows[1][6],rows[1][7],rows[1][8],rows[1][9],rows[1][10]),_class='table')}}
+        </div>
+        <div class="table table-hover" style="margin-top:150px">
+            {{=TABLE(TR(TH(''),TH('TEAM'),TH('RECORD'), 
+                TH('1'),TH('2'),TH('3'),TH('4')),
+                TR(('AWAY'),rows[2][5],rows[2][6],rows[2][7],rows[2][8],rows[2][9],rows[2][10]),
+                TR(('HOME'),rows[3][5],rows[3][6],rows[3][7],rows[3][8],rows[3][9],rows[3][10]),_class='table')}}
+        </div>
+        <div class="table table-hover" style="margin-top:300px; width:50%">
+            {{=TABLE(TR(TH(''),TH('TEAM'),TH('RECORD'), 
+                TH('1'),TH('2'),TH('3'),TH('4')),
+                TR(('AWAY'),rows[10][5],rows[10][6],rows[10][7],rows[10][8],rows[10][9],rows[10][10]),
+                TR(('HOME'),rows[11][5],rows[11][6],rows[11][7],rows[11][8],rows[11][9],rows[11][10]),_class='table')}}
+        </div>
+        {{r = rows[::2]}}
+        """
+    
+    day = time.strftime('%d')
+    month = time.strftime('%m')
+    year = time.strftime('%Y')
+    url = 'http://stats.nba.com/scores/#!/' + month + '/' + day + '/' + year
+    headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.99 Safari/537.36'}
+
+    with requests.Session() as session:
+        session.headers = headers
+        session.get(url, headers=headers)
+
+        params = {
+            'DayOffset': '0',
+            'GameDate': month + '/' + day + '/' + year,
+            'LeagueID': '00'
+        }
+        response = session.get('http://stats.nba.com/stats/scoreboardV2?DayOffset=0&LeagueID=00&gameDate='+month+'%2F'+day+'%2F'+year, params=params)
+        results = response.json()
+        headers = results['resultSets'][1]['headers']
+        rows = results['resultSets'][1]['rowSet']
+    return dict(headers=headers, rows=rows)
 
 
 def player_info(player_id):

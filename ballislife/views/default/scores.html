@@ -47,24 +47,15 @@
         color: white;
     }
     .navbar-default .navbar-nav > .active > a:focus
-    .table .table-condensed {
-        color: black;
-        background-color: white;
-    }
-    .dataframe thead th {
-        background-color: #003366;
-        color:white;
-        text-transform: uppercase;
-    }
-    .dataframe {
-        border: 3px solid white;
-        color:black;
-        font-weight:bold;
-        width:100%;
+    .table .table-hover {
         position:absolute;
+    }
+    table {
+    	position: absolute;
     }
     tr {
        text-transform: capitalize;
+       font-family: Futura;
     }
     tr:hover td {
         background:#DFDFDF;
@@ -72,10 +63,13 @@
     tr:nth-child(even) {
         background-color: #DFDFDF;
     }
+    tr:nth-child(odd) {
+        background-color: white;
+    }
 </style>
 <html lang="en">
     <head>
-    	<meta http-equiv="refresh" content="30;URL=scores.html#bottom"/>
+    	<meta http-equiv="refresh" content="30"/>
     </head>
     <body>
         <div class="navbar navbar-fixed-top">
@@ -95,7 +89,27 @@
             </div>
         </div>
         <div class="table table-hover">
-            {{=XML(live_games_df)}}
+                {{for row in rows:}}
+                	{{if rows.index(row) == 0:}}
+                		{{i = rows.index(row) + 1}}
+                			{{=A('View Game Info', _class='btn', _href=URL('default', 'player_stats'))}}
+	                    	{{=TABLE(TR(TH(''),TH('TEAM'),TH('RECORD'),TH('1'),TH('2'),TH('3'),TH('4')),
+	                             TR(('AWAY'),rows[i][4],rows[i][6],rows[i][7],rows[i][8],rows[i][9],rows[i][10]),
+	                              TR(('HOME'),row[4],row[6],row[7],row[8],row[9],row[10]),_class='table')}}
+	                        <div>
+	                        </div>
+	                    {{pass}}
+                	{{if (rows.index(row)) % 2 == 0 and (rows.index(row)) > 1:}}
+                		<div style="margin-top:150px">
+	                		{{i = rows.index(row) + 1}}
+	                		{{=A('View Game Info', _class='btn', _href=URL('default', 'player_stats'))}}
+	                    	{{=TABLE(TR(TH(''),TH('TEAM'),TH('RECORD'),TH('1'),TH('2'),TH('3'),TH('4')),
+	                             TR(('AWAY'),rows[i][4],rows[i][6],rows[i][7],rows[i][8],rows[i][9],rows[i][10]),
+	                              TR(('HOME'),row[4],row[6],row[7],row[8],row[9],row[10]),_class='table')}}
+	                        
+                    </div>
+                	{{pass}}
+                {{pass}}
         </div>
     </body>
 

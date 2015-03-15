@@ -47,24 +47,20 @@
         color: white;
     }
     .navbar-default .navbar-nav > .active > a:focus
-    .table .table-condensed {
+    .web2py_console form {
+        background-color: white;
+        font-family: Impact;
+    }
+    .table .table-hover {
         color: black;
         background-color: white;
     }
-    .dataframe thead th {
-        background-color: #003366;
-        color:white;
-        text-transform: uppercase;
-    }
-    .dataframe {
-        border: 3px solid white;
-        color:black;
-        font-weight:bold;
-        width:100%;
-        position:absolute;
+    table {
+    	position: absolute;
     }
     tr {
        text-transform: capitalize;
+       font-family: Futura;
     }
     tr:hover td {
         background:#DFDFDF;
@@ -72,9 +68,13 @@
     tr:nth-child(even) {
         background-color: #DFDFDF;
     }
+    tr:nth-child(odd) {
+        background-color: white;
+    }
 </style>
 <html lang="en">
     <head>
+    	<meta http-equiv="refresh" content="30"/>
     </head>
     <body>
         <div class="navbar navbar-fixed-top">
@@ -93,9 +93,25 @@
                 <h1 style="color:black; font-weight: bold">Live Scores</h1>
             </div>
         </div>
-        <div class="table table-condensed">
-            {{=XML(live_games_df)}}
-        </div>
+        <table class="table table-hover">
+            <script>
+                var t = {{=rows}};
+
+                document.write("<tr><td></td>");
+                document.write("<td>TEAM</td>");
+                document.write("<td>RECORD</td>");
+                document.write("<td>1</td>");
+                document.write("<td>2</td>");
+                document.write("<td>3</td>");
+                document.write("<td>4</td></tr>");
+
+                /*for (var i = 0; i < t.length(); i++) {
+                    document.write("<tr><td>t[i][1]</td>");
+                    document.write("<td>t[i][1]</td>");
+                    document.write("<td>t[i][1]</td></tr>");
+                }*/
+            </script>
+        </table>
     </body>
 
 </html>

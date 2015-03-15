@@ -1,0 +1,670 @@
+(dp1
+S'output'
+p2
+S"<class 'requests.exceptions.ConnectionError'> ('Connection aborted.', gaierror(8, 'nodename nor servname provided, or not known'))"
+p3
+sS'layer'
+p4
+S'/Users/AlyanShafique/Documents/web2py/web2py/applications/ballislife/controllers/default.py'
+p5
+sS'code'
+p6
+S'# -*- coding: utf-8 -*-\n# this file is released under public domain and you can use without limitations\n\n#########################################################################\n## This is a sample controller\n## - index is the default action of any application\n## - user is required for authentication and authorization\n## - download is for downloading files uploaded in the db (does streaming)\n## - api is an example of Hypermedia API support and access control\n#########################################################################\nimport requests\nimport json as simplejson\nimport pandas as pd\nfrom players import teams\nimport urllib2\nimport re\nfrom lxml import etree\nimport xml.etree.ElementTree as ElementTree\nimport time\n"""\n\nRefer: https://docs.python.org/2/library/json.html\n\nfilename = open(\'../Models/team_players.json\', \'r\')\n\nread_file = filename.read()\n\ny=json.loads(read_file)\n"""\npd.set_option(\'display.width\', 200)\npd.set_option(\'display.max_colwidth\', -1)\nplayers = []\nplayers_info = []\nlive_games = []\nplayer_stats = {\'gp\':None,\'w\':None,\'l\':None,\'win_pct\':None,\'min\':None,\'fgm\':None,\'fga\':None,\'fg_pct\':None,\n                \'fg3m\':None,\'fg3a\':None,\'fg3_pct\':None,\'ftm\':None,\'fta\':None,\'ft_pct\':None,\'oreb\':None,\'dreb\':None,\n                \'reb\':None,\'ast\':None,\'tov\':None,\'stl\':None,\'blk\':None,\'pf\':None,\'pts\':None,\'plus_minus\':None}\nplayer_common_info = {\'first_name\':None,\'last_name\':None,\'jersey\':None,\'position\':None,\'team\':None,\'experience\':None,\n                      \'school\':None,\'height\':None,\'weight\':None,\'birthdate\':None}\nplay_by_play_info = {\'quarter\':None,\'time\':None,\'home\':None,\'away\':None}\n#player_stats = {\'name\':None,\'avg_dribbles\':None,\'avg_touch_time\':None,\'avg_shot_distance\':None,\'avg_defender_distance\':None}\n\ndef index():\n    day = time.strftime(\'%d\')\n    month = time.strftime(\'%m\')\n    year = time.strftime(\'%Y\')\n    url = \'http://stats.nba.com/standings/#!/\' + day + \'/\' + month + \'/\' + year\n    headers = {\'User-Agent\': \'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.99 Safari/537.36\'}\n    with requests.Session() as session:\n        session.headers = headers\n        session.get(url, headers=headers)\n\n        params = {\n            \'DayOffset\': \'0\',\n            \'GameDate\': day + \'/\' + month + \'/\' + year,\n            \'LeagueID\': \'00\'\n        }\n    \n        response = session.get(\'http://stats.nba.com/stats/scoreboard?DayOffset=0&LeagueID=00&gameDate=03%2F13%2F2015\', params=params)\n        results = response.json()\n        eastHeaders = results[\'resultSets\'][4][\'headers\']\n        eastRows = results[\'resultSets\'][4][\'rowSet\']\n        westHeaders = results[\'resultSets\'][5][\'headers\']\n        westRows = results[\'resultSets\'][5][\'rowSet\']\n    return dict(eastHeaders=eastHeaders,eastRows=eastRows,westHeaders=westHeaders,westRows=westRows)\n\n\ndef get_live_scores():\n    try: \n        if (urllib2.urlopen(\'http://data.nba.com/data/5s/xml/nbacom/2014/scores/20150301/GSWBOS/pbp_1.xml\').getcode() == 200):\n            url = \'http://data.nba.com/data/5s/xml/nbacom/2014/scores/20150301/GSWBOS/pbp_1.xml\'\n            content = urllib2.urlopen(url).read()   \n            quarter1 = etree.fromstring(content)\n            for event in quarter1.xpath("//event"):\n                s = event.text\n                val = s.split(\'(\', 1)[1].split(\')\')[0]\n                live_games.append({\'QUARTER\': \'1\', \'TIME\': val, \'EVENT\': s})\n    except: \n        print \'DNE\'\n    try: \n        if (urllib2.urlopen(\'http://data.nba.com/data/5s/xml/nbacom/2014/scores/20150301/GSWBOS/pbp_2.xml\').getcode() == 200):\n            url = \'http://data.nba.com/data/5s/xml/nbacom/2014/scores/20150301/GSWBOS/pbp_2.xml\'\n            content = urllib2.urlopen(url).read()   \n            quarter2 = etree.fromstring(content)\n            for event in quarter2.xpath("//event"):\n                s = event.text\n                val = s.split(\'(\', 1)[1].split(\')\')[0]\n                live_games.append({\'QUARTER\': \'2\', \'TIME\': val, \'EVENT\': event.text})\n    except: \n        print \'DNE\'\n    try: \n        if (urllib2.urlopen(\'http://data.nba.com/data/5s/xml/nbacom/2014/scores/20150301/GSWBOS/pbp_3.xml\').getcode() == 200):\n            url = \'http://data.nba.com/data/5s/xml/nbacom/2014/scores/20150301/GSWBOS/pbp_3.xml\'\n            content = urllib2.urlopen(url).read()   \n            quarter3 = etree.fromstring(content)\n            for event in quarter3.xpath("//event"):\n                s = event.text\n                val = s.split(\'(\', 1)[1].split(\')\')[0]\n                live_games.append({\'QUARTER\': \'3\', \'TIME\': val, \'EVENT\': event.text})\n    except: \n        print \'DNE\'\n    try: \n        if (urllib2.urlopen(\'http://data.nba.com/data/5s/xml/nbacom/2014/scores/20150301/GSWBOS/pbp_4.xml\').getcode() == 200):\n            url = \'http://data.nba.com/data/5s/xml/nbacom/2014/scores/20150301/GSWBOS/pbp_4.xml\'\n            content = urllib2.urlopen(url).read()   \n            quarter4 = etree.fromstring(content)\n            for event in quarter4.xpath("//event"):\n                s = event.text\n                val = s.split(\'(\', 1)[1].split(\')\')[0]\n                live_games.append({\'QUARTER\': \'4\', \'TIME\': val, \'EVENT\': event.text})\n    except: \n        print \'DNE\'\n    try: \n        if (urllib2.urlopen(\'http://data.nba.com/data/5s/xml/nbacom/2014/scores/20150301/GSWBOS/pbp_5.xml\').getcode() == 200):\n            url = \'http://data.nba.com/data/5s/xml/nbacom/2014/scores/20150301/GSWBOS/pbp_5.xml\'\n            content = urllib2.urlopen(url).read()   \n            quarter4 = etree.fromstring(content)\n            for event in quarter4.xpath("//event"):\n                s = event.text\n                val = s.split(\'(\', 1)[1].split(\')\')[0]\n                live_games.append({\'QUARTER\': \'OT\', \'TIME\': val, \'EVENT\': event.text})\n    except: \n        print \'DNE\'\n    try: \n        if (urllib2.urlopen(\'http://data.nba.com/data/5s/xml/nbacom/2014/scores/20150301/GSWBOS/pbp_6.xml\').getcode() == 200):\n            url = \'http://data.nba.com/data/5s/xml/nbacom/2014/scores/20150301/GSWBOS/pbp_6.xml\'\n            content = urllib2.urlopen(url).read()   \n            quarter4 = etree.fromstring(content)\n            for event in quarter4.xpath("//event"):\n                s = event.text\n                val = s.split(\'(\', 1)[1].split(\')\')[0]\n                live_games.append({\'QUARTER\': \'2OT\', \'TIME\': val, \'EVENT\': event.text})\n    except: \n        print \'DNE\'\n    try: \n        if (urllib2.urlopen(\'http://data.nba.com/data/5s/xml/nbacom/2014/scores/20150301/GSWBOS/pbp_7.xml\').getcode() == 200):\n            url = \'http://data.nba.com/data/5s/xml/nbacom/2014/scores/20150301/GSWBOS/pbp_7.xml\'\n            content = urllib2.urlopen(url).read()   \n            quarter4 = etree.fromstring(content)\n            for event in quarter4.xpath("//event"):\n                s = event.text\n                val = s.split(\'(\', 1)[1].split(\')\')[0]\n                live_games.append({\'QUARTER\': \'3OT\', \'TIME\': val, \'EVENT\': event.text})\n    except: \n        print \'DNE\'\n    """play_by_play = response.xml()[\'resultSets\'][0][\'rowSet\']\n    data = simplejson.loads(response.text)\n    headers = data[\'resultSets\'][0][\'headers\']\n    game_data = data[\'resultSets\'][0][\'rowSet\']\n    play_by_play_df = pd.DataFrame(game_data,columns=headers)\n    quarter = play_by_play_df[\'PERIOD\'].to_string()\n    time = play_by_play_df[\'PCTIMESTRING\'].to_string()\n    home = play_by_play_df[\'HOMEDESCRIPTION\'].to_string()\n    away = play_by_play_df[\'VISITORDESCRIPTION\'].to_string()\n    play_by_play_info[\'quarter\'] = quarter\n    play_by_play_info[\'time\'] = time\n    play_by_play_info[\'home\'] = home\n    play_by_play_info[\'away\'] = away\n    live_games.append(play_by_play_info.copy())"""\n    \n\n\ndef scores():\n    """get_live_scores()\n    live_games_cols = [\'QUARTER\', \'TIME\', \'EVENT\']\n    live_games_df = pd.DataFrame(live_games,columns = live_games_cols)\n    live_games_df = live_games_df.to_html(classes="table table-condensed", index=False)\n    return dict(live_games_df=live_games_df)\n    {{=XML(live_games_df)}}\n     <div class="table table-hover">\n            {{=TABLE(TR(TH(\'\'),TH(\'TEAM\'),TH(\'RECORD\'), \n                TH(\'1\'),TH(\'2\'),TH(\'3\'),TH(\'4\')),\n                TR((\'AWAY\'),rows[0][5],rows[0][6],rows[0][7],rows[0][8],rows[0][9],rows[0][10]),\n                TR((\'HOME\'),rows[1][5],rows[1][6],rows[1][7],rows[1][8],rows[1][9],rows[1][10]),_class=\'table\')}}\n        </div>\n        <div class="table table-hover" style="margin-top:150px">\n            {{=TABLE(TR(TH(\'\'),TH(\'TEAM\'),TH(\'RECORD\'), \n                TH(\'1\'),TH(\'2\'),TH(\'3\'),TH(\'4\')),\n                TR((\'AWAY\'),rows[2][5],rows[2][6],rows[2][7],rows[2][8],rows[2][9],rows[2][10]),\n                TR((\'HOME\'),rows[3][5],rows[3][6],rows[3][7],rows[3][8],rows[3][9],rows[3][10]),_class=\'table\')}}\n        </div>\n        <div class="table table-hover" style="margin-top:300px; width:50%">\n            {{=TABLE(TR(TH(\'\'),TH(\'TEAM\'),TH(\'RECORD\'), \n                TH(\'1\'),TH(\'2\'),TH(\'3\'),TH(\'4\')),\n                TR((\'AWAY\'),rows[10][5],rows[10][6],rows[10][7],rows[10][8],rows[10][9],rows[10][10]),\n                TR((\'HOME\'),rows[11][5],rows[11][6],rows[11][7],rows[11][8],rows[11][9],rows[11][10]),_class=\'table\')}}\n        </div>"""\n    \n    day = time.strftime(\'%d\')\n    month = time.strftime(\'%m\')\n    year = time.strftime(\'%Y\')\n    url = \'http://stats.nba.com/scores/#!/\' + month + \'/\' + day + \'/\' + year\n    headers = {\'User-Agent\': \'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.99 Safari/537.36\'}\n\n    with requests.Session() as session:\n        session.headers = headers\n        session.get(url, headers=headers)\n\n        params = {\n            \'DayOffset\': \'0\',\n            \'GameDate\': month + \'/\' + day + \'/\' + year,\n            \'LeagueID\': \'00\'\n        }\n        response = session.get(\'http://stats.nba.com/stats/scoreboardV2?DayOffset=0&LeagueID=00&gameDate=\'+month+\'%2F\'+day+\'%2F\'+year, params=params)\n        results = response.json()\n        headers = results[\'resultSets\'][1][\'headers\']\n        rows = results[\'resultSets\'][1][\'rowSet\']\n    return dict(headers=headers, rows=rows, scores=scores)\n\n\ndef player_info(player_id):\n    url = \'http://stats.nba.com/stats/commonplayerinfo?LeagueID=00&\' + \\\n    \'PlayerID=\'+player_id+\'&SeasonType=Regular+Season\'\n    response = requests.get(url)\n    shots = response.json()[\'resultSets\'][0][\'rowSet\']\n    data = simplejson.loads(response.text)\n    headers = data[\'resultSets\'][0][\'headers\']\n    shot_data = data[\'resultSets\'][0][\'rowSet\']\n    """player_info_df = pd.DataFrame(shot_data,columns=headers)\n    first_name = player_info_df[\'FIRST_NAME\'].to_string()\n    last_name = player_info_df[\'LAST_NAME\'].to_string()\n    jersey = player_info_df[\'JERSEY\'].mean(axis=1)\n    position = player_info_df[\'POSITION\'].to_string()\n    team = player_info_df[\'TEAM_NAME\'].to_string()\n    experience = player_info_df[\'SEASON_EXP\'].mean(axis=1)\n    school = player_info_df[\'SCHOOL\'].to_string()\n    height = player_info_df[\'HEIGHT\'].to_string()\n    weight= player_info_df[\'WEIGHT\'].mean(axis=1)\n    birthdate = player_info_df[\'BIRTHDATE\'].to_string()\n    player_common_info[\'first_name\'] = first_name\n    player_common_info[\'last_name\'] = last_name\n    player_common_info[\'jersey\'] = jersey\n    player_common_info[\'position\'] = position\n    player_common_info[\'team\'] = team\n    player_common_info[\'experience\'] = experience\n    player_common_info[\'school\'] = school\n    player_common_info[\'height\'] = height\n    player_common_info[\'weight\'] = weight\n    player_common_info[\'birthdate\'] = birthdate\n    players_info.append(player_common_info.copy())\n    print player_common_info"""\n    #return(headers=headers,shot_data=shot_data)\n\ndef find_current_stats(player_id):\n    """url = \'http://stats.nba.com/stats/playerdashptshotlog?\'+ \\\n    \'DateFrom=&DateTo=&GameSegment=&LastNGames=0&LeagueID=00&\' + \\\n    \'Location=&Month=0&OpponentTeamID=0&Outcome=&Period=0&\' + \\\n    \'PlayerID=\'+player_id+\'&Season=2014-15&SeasonSegment=&\' + \\\n    \'SeasonType=Regular+Season&TeamID=0&VsConference=&VsDivision=\'"""\n\n    url = \'http://stats.nba.com/stats/playerdashboardbygeneralsplits?\' + \\\n    \'DateFrom=&DateTo=&GameSegment=&LastNGames=0&LeagueID=00&Location=&\' + \\\n    \'MeasureType=Base&Month=0&OpponentTeamID=0&Outcome=&PaceAdjust=N&\' + \\\n    \'PerMode=PerGame&Period=0&PlayerID=\'+player_id+\'+&PlusMinus=N&Rank=N\' + \\\n    \'&Season=2014-15&SeasonSegment=&SeasonType=Regular+Season&VsConference=&VsDivision=\'\n    #Create Dict based on JSON response\n    response = requests.get(url)\n    #print response.elapsed\n    shots = response.json()[\'resultSets\'][0][\'rowSet\']\n    data = simplejson.loads(response.text)\n    #print (\'================================\')\n    #print data\n    #Create df from data and find averages\n    infoheaders = data[\'resultSets\'][0][\'headers\']\n    hot_data = data[\'resultSets\'][0][\'rowSet\']\n    """reg_stats_df = pd.DataFrame(shot_data,columns=headers)\n    #print (\'+++++++++++++++++++++++++++++++++\')\n    #print df\n    avg_def = df[\'CLOSE_DEF_DIST\'].mean(axis=1)\n    avg_dribbles = df[\'DRIBBLES\'].mean(axis=1)\n    avg_shot_distance = df[\'SHOT_DIST\'].mean(axis=1)\n    avg_touch_time = df[\'TOUCH_TIME\'].mean(axis=1)\n    gp = reg_stats_df[\'GP\'].mean(axis=1)\n    w = reg_stats_df[\'W\'].mean(axis=1)\n    l = reg_stats_df[\'L\'].mean(axis=1)\n    win_pct = reg_stats_df[\'W_PCT\'].mean(axis=1)\n    min = reg_stats_df[\'MIN\'].mean(axis=1)\n    fgm = reg_stats_df[\'FGM\'].mean(axis=1)\n    fga = reg_stats_df[\'FGA\'].mean(axis=1)\n    fg_pct = reg_stats_df[\'FG_PCT\'].mean(axis=1)\n    fg3m = reg_stats_df[\'FG3M\'].mean(axis=1)\n    fg3a = reg_stats_df[\'FG3A\'].mean(axis=1)\n    fg3_pct = reg_stats_df[\'FG3_PCT\'].mean(axis=1)\n    ftm = reg_stats_df[\'FTM\'].mean(axis=1)\n    fta = reg_stats_df[\'FTA\'].mean(axis=1)\n    ft_pct = reg_stats_df[\'FT_PCT\'].mean(axis=1)\n    oreb = reg_stats_df[\'OREB\'].mean(axis=1)\n    dreb = reg_stats_df[\'DREB\'].mean(axis=1)\n    reb = reg_stats_df[\'REB\'].mean(axis=1)\n    ast = reg_stats_df[\'AST\'].mean(axis=1)\n    tov = reg_stats_df[\'TOV\'].mean(axis=1)\n    stl = reg_stats_df[\'STL\'].mean(axis=1)\n    blk = reg_stats_df[\'BLK\'].mean(axis=1)\n    pf = reg_stats_df[\'PF\'].mean(axis=1)\n    pts = reg_stats_df[\'PTS\'].mean(axis=1)\n    plus_minus = reg_stats_df[\'PLUS_MINUS\'].mean(axis=1)\n    #add averages to dictionary\n    #player_stats[\'name\'] = name\n    player_stats[\'avg_defender_distance\']=avg_def\n    player_stats[\'avg_shot_distance\'] = avg_shot_distance\n    player_stats[\'avg_touch_time\'] = avg_touch_time\n    player_stats[\'avg_dribbles\'] = avg_dribbles\n    players.append(player_stats.copy())\n    player_stats[\'gp\'] = gp\n    player_stats[\'w\']= w\n    player_stats[\'l\'] = l\n    player_stats[\'win_pct\'] = win_pct\n    player_stats[\'min\'] = min\n    player_stats[\'fgm\'] = fgm\n    player_stats[\'fga\'] = fga\n    player_stats[\'fg_pct\'] = fg_pct\n    player_stats[\'fg3m\'] = fg3m\n    player_stats[\'fg3a\'] = fg3a\n    player_stats[\'fg3_pct\'] = fg3_pct\n    player_stats[\'ftm\'] = ftm\n    player_stats[\'fta\'] = fta\n    player_stats[\'ft_pct\'] = ft_pct\n    player_stats[\'ftm\'] = ftm\n    player_stats[\'fta\'] = fta\n    player_stats[\'ft_pct\'] = ft_pct\n    player_stats[\'oreb\'] = oreb\n    player_stats[\'dreb\'] = dreb\n    player_stats[\'reb\'] = reb\n    player_stats[\'ast\'] = ast\n    player_stats[\'tov\'] = tov\n    player_stats[\'stl\'] = stl\n    player_stats[\'blk\'] = blk\n    player_stats[\'pf\'] = pf\n    player_stats[\'pts\'] = pts\n    player_stats[\'+/-\'] = plus_minus\n    players.append(player_stats.copy())"""\n    #return(infoheaders=infoheaders,hot_data=hot_data)\n    \ndef team_stats():\n    url = "http://stats.nba.com/league/team/#!/advanced/"\n    headers = {\'User-Agent\': \'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.99 Safari/537.36\'}\n\n    with requests.Session() as session:\n        session.headers = headers\n        session.get(url, headers=headers)\n\n        params = {\n            \'DateFrom\': \'\',\n            \'DateTo\': \'\',\n            \'GameScope\': \'\',\n            \'GameSegment\': \'\',\n            \'LastNGames\': \'0\',\n            \'LeagueID\': \'00\',\n            \'Location\': \'\',\n            \'MeasureType\': \'Advanced\',\n            \'Month\': \'0\',\n            \'OpponentTeamID\': \'0\',\n            \'Outcome\': \'\',\n            \'PaceAdjust\': \'N\',\n            \'PerMode\': \'Totals\',\n            \'Period\': \'0\',\n            \'PlayerExperience\': \'\',\n            \'PlayerPosition\': \'\',\n            \'PlusMinus\': \'N\',\n            \'Rank\': \'N\',\n            \'Season\': \'2014-15\',\n            \'SeasonSegment\': \'\',\n            \'SeasonType\': \'Regular Season\',\n            \'StarterBench\': \'\',\n            \'VsConference\': \'\',\n            \'VsDivision\': \'\'\n        }\n    \n        response = session.get(\'http://stats.nba.com/stats/leaguedashteamstats\', params=params)\n        results = response.json()\n        headers = results[\'resultSets\'][0][\'headers\']\n        rows = results[\'resultSets\'][0][\'rowSet\']\n    return dict(headers=headers, rows=rows)\n        \n\ndef view():\n    p = db.player(request.args(0))\n    url = \'http://stats.nba.com/player/#!/\' + p.player_id + \'/stats/\'\n    headers = {\'User-Agent\': \'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.99 Safari/537.36\'}\n\n    with requests.Session() as session:\n        session.headers = headers\n        session.get(url, headers=headers)\n\n        params = {\n            \'DateFrom\': \'\',\n            \'DateTo\': \'\',\n            \'GameSegment\': \'\',\n            \'LastNGames\': \'0\',\n            \'LeagueID\': \'00\',\n            \'Location\': \'\',\n            \'MeasureType\': \'Base\',\n            \'Month\': \'0\',\n            \'OpponentTeamID\': \'0\',\n            \'Outcome\': \'\',\n            \'PaceAdjust\': \'N\',\n            \'PerMode\': \'PerGame\',\n            \'Period\': \'0\',\n            \'PlayerID\': p.player_id,\n            \'PlusMinus\': \'N\',\n            \'Rank\': \'N\',\n            \'Season\': \'2014-15\',\n            \'SeasonSegment\': \'\',\n            \'SeasonType\': \'Regular Season\',\n            \'VsConference\': \'\',\n            \'VsDivision\': \'\'\n        }\n    \n        response = session.get(\'http://stats.nba.com/stats/playerdashboardbygeneralsplits?DateFrom=&DateTo=&GameSegment=\' + \n                               \'&LastNGames=0&LeagueID=00&Location=&MeasureType=Base&Month=0&OpponentTeamID=0&Outcome=&\' + \n                               \'PaceAdjust=N&PerMode=PerGame&Period=0&PlayerID=\'+ p.player_id + \'&PlusMinus=N&Rank=N&Season=2014-15&\' + \n                               \'SeasonSegment=&SeasonType=Regular+Season&VsConference=&VsDivision=\', params=params)\n        results = response.json()\n        headers = results[\'resultSets\'][0][\'headers\']\n        rows = results[\'resultSets\'][0][\'rowSet\']\n        \n        params = {\n            \'PlayerID\': p.player_id,\n            \'LeagueID\': \'00\'\n        }\n    \n        response = session.get(\'http://stats.nba.com/stats/commonplayerinfo?LeagueID=00&PlayerID=\'+p.player_id+\'&SeasonType=Regular+Season\', params=params)\n        results = response.json()\n        infoHeaders = results[\'resultSets\'][0][\'headers\']\n        infoRows = results[\'resultSets\'][0][\'rowSet\']\n        name = p.name\n    return dict(headers=headers, rows=rows,infoHeaders=infoHeaders,infoRows=infoRows, name=name)\n\ndef player_stats():\n    q = db.player\n    #NBA Stats API using selected player ID\n    """Will continue inserting into db.player\n    for x in teams:\n        for y,z in teams[x].items():\n            db.player.insert(**{\'name\':y, \'player_id\':z, \'team\':x})"""\n    #print db.executesql(\'DELETE (*) FROM player;\')\n    #print db.executesql(\'SELECT * FROM player;\')\n        #for y in teams[x]:\n            #db.player.insert(**{})\n            #print teams[x][y]\n    def generate_view_button(row):\n        view_page = A(\'View\', _class=\'btn\', _href=URL(\'default\', \'view\', args=[row.id]))\n        return view_page\n    links = [\n        dict(header=\'\', body = generate_view_button),\n        ]\n    form = SQLFORM.grid(q,\n        fields=[db.player.name, db.player.team],csv=False, orderby=db.player.name, details=False, links=links)\n    """find_stats(\'Stephen Curry\',\'201939\')\n    #find_stats(\'James Harden\',\'201935\')\n    #find_stats(\'Klay Thompson\',\'202691\')\n    #find_stats(\'LeBron James\',\'2544\')\n    #cols = [\'name\',\'avg_defender_distance\',\'avg_dribbles\',\'avg_shot_distance\',\'avg_touch_time\']\n    cols = [\'name\', \'gp\', \'w\', \'l\', \'win_pct\', \'min\', \'fgm\', \'fga\', \'fg_pct\', \'fg3m\', \'fg3a\', \'fg3_pct\',\n            \'ftm\', \'fta\',\'ft_pct\', \'pf\', \'oreb\', \'dreb\', \'reb\', \'ast\', \'tov\', \'stl\', \'blk\', \'pts\', \'+/-\']\n    df = pd.DataFrame(players,columns = cols)\n    print (\'=========================\')\n    print df\n    df = df.to_html(classes="table table-condensed")"""\n    return dict(form=form)\n\ndef stats():\n    test = \'My Thumbnail\'\n    response.flash = T("Welcome to web2py!")\n    return dict(message=T(\'Hello World\'))\n\n\ndef top_players():\n    url = "http://stats.nba.com/"\n    headers = {\'User-Agent\': \'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.99 Safari/537.36\'}\n\n    with requests.Session() as session:\n        session.headers = headers\n        session.get(url, headers=headers)\n\n        params = {\n            \'GameScope\': \'Season\',\n            \'LeagueID\': \'00\',\n            \'PlayerOrTeam\': \'Player\',\n            \'PlayerScope\': \'All Players\',\n            \'Season\': \'2014-15\',\n            \'SeasonType\': \'Regular Season\',\n            \'StatType\': \'Traditional\'\n        }\n    \n        response = session.get(\'http://stats.nba.com/stats/homepagev2?GameScope=Season&LeagueID=00&PlayerOrTeam=Player\' + \n                               \'&PlayerScope=All+Players&Season=2014-15&SeasonType=Regular+Season&StatType=Traditional\', params=params)\n        results = response.json()\n        pointHeaders = results[\'resultSets\'][0][\'headers\']\n        pointRows = results[\'resultSets\'][0][\'rowSet\']\n        reboundHeaders = results[\'resultSets\'][1][\'headers\']\n        reboundRows = results[\'resultSets\'][1][\'rowSet\']\n        assistHeaders = results[\'resultSets\'][2][\'headers\']\n        assistRows = results[\'resultSets\'][2][\'rowSet\']\n        stealHeaders = results[\'resultSets\'][3][\'headers\']\n        stealRows = results[\'resultSets\'][3][\'rowSet\']\n        fgHeaders = results[\'resultSets\'][4][\'headers\']\n        fgRows = results[\'resultSets\'][4][\'rowSet\']\n        ftHeaders = results[\'resultSets\'][5][\'headers\']\n        ftRows = results[\'resultSets\'][5][\'rowSet\']\n        threePtHeaders = results[\'resultSets\'][6][\'headers\']\n        threePtRows = results[\'resultSets\'][6][\'rowSet\']\n        blockHeaders = results[\'resultSets\'][7][\'headers\']\n        blockRows = results[\'resultSets\'][7][\'rowSet\']\n    return dict(pointHeaders=pointHeaders,pointRows=pointRows,reboundHeaders=reboundHeaders,reboundRows=reboundRows,\n                assistHeaders=assistHeaders,assistRows=assistRows,stealHeaders=stealHeaders,stealRows=stealRows,\n                fgHeaders=fgHeaders,fgRows=fgRows,ftHeaders=ftHeaders,ftRows=ftRows,threePtHeaders=threePtHeaders,\n                threePtRows=threePtRows,blockHeaders=blockHeaders,blockRows=blockRows)\n\ndef user():\n    """\n    exposes:\n    http://..../[app]/default/user/login\n    http://..../[app]/default/user/logout\n    http://..../[app]/default/user/register\n    http://..../[app]/default/user/profile\n    http://..../[app]/default/user/retrieve_password\n    http://..../[app]/default/user/change_password\n    http://..../[app]/default/user/manage_users (requires membership in\n    use @auth.requires_login()\n        @auth.requires_membership(\'group name\')\n        @auth.requires_permission(\'read\',\'table name\',record_id)\n    to decorate functions that need access control\n    """\n    return dict(form=auth())\n\n\n@cache.action()\ndef download():\n    """\n    allows downloading of uploaded files\n    http://..../[app]/default/download/[filename]\n    """\n    return response.download(request, db)\n\n\ndef call():\n    """\n    exposes services. for example:\n    http://..../[app]/default/call/jsonrpc\n    decorate with @services.jsonrpc the functions to expose\n    supports xml, json, xmlrpc, jsonrpc, amfrpc, rss, csv\n    """\n    return service()\n\n\n@auth.requires_login() \ndef api():\n    """\n    this is example of API with access control\n    WEB2PY provides Hypermedia API (Collection+JSON) Experimental\n    """\n    from gluon.contrib.hypermedia import Collection\n    rules = {\n        \'<tablename>\': {\'GET\':{},\'POST\':{},\'PUT\':{},\'DELETE\':{}},\n        }\n    return Collection(db).process(request,response,rules)\n\nresponse._vars=response._caller(scores)\n'
+p7
+sS'snapshot'
+p8
+(dp9
+S'exception'
+p10
+(dp11
+S'__module__'
+p12
+S"'requests.exceptions'"
+p13
+sS'__getslice__'
+p14
+S"<method-wrapper '__getslice__' of ConnectionError object>"
+p15
+sS'__str__'
+p16
+S"<method-wrapper '__str__' of ConnectionError object>"
+p17
+sS'__reduce__'
+p18
+S'<built-in method __reduce__ of ConnectionError object>'
+p19
+sS'__dict__'
+p20
+S"{'request': <PreparedRequest [GET]>, 'response': None}"
+p21
+sS'__sizeof__'
+p22
+S'<built-in method __sizeof__ of ConnectionError object>'
+p23
+sS'__weakref__'
+p24
+S'None'
+p25
+sS'__init__'
+p26
+S"<bound method ConnectionError.__init__ of Connec...odename nor servname provided, or not known')),)>"
+p27
+sS'__setattr__'
+p28
+S"<method-wrapper '__setattr__' of ConnectionError object>"
+p29
+sS'__reduce_ex__'
+p30
+S'<built-in method __reduce_ex__ of ConnectionError object>'
+p31
+sS'__new__'
+p32
+S'<built-in method __new__ of type object>'
+p33
+sS'errno'
+p34
+S'None'
+p35
+sS'__format__'
+p36
+S'<built-in method __format__ of ConnectionError object>'
+p37
+sS'__class__'
+p38
+S"<class 'requests.exceptions.ConnectionError'>"
+p39
+sS'filename'
+p40
+S'None'
+p41
+sS'__doc__'
+p42
+S"'A Connection error occurred.'"
+p43
+sS'__getitem__'
+p44
+S"<method-wrapper '__getitem__' of ConnectionError object>"
+p45
+sS'__setstate__'
+p46
+S'<built-in method __setstate__ of ConnectionError object>'
+p47
+sS'__getattribute__'
+p48
+S"<method-wrapper '__getattribute__' of ConnectionError object>"
+p49
+sS'args'
+p50
+S"(ProtocolError('Connection aborted.', gaierror(8, 'nodename nor servname provided, or not known')),)"
+p51
+sS'__subclasshook__'
+p52
+S'<built-in method __subclasshook__ of type object>'
+p53
+sS'response'
+p54
+S'None'
+p55
+sS'__unicode__'
+p56
+S'<built-in method __unicode__ of ConnectionError object>'
+p57
+sS'request'
+p58
+S'<PreparedRequest [GET]>'
+p59
+sS'strerror'
+p60
+S'None'
+p61
+sS'__delattr__'
+p62
+S"<method-wrapper '__delattr__' of ConnectionError object>"
+p63
+sS'__repr__'
+p64
+S"<method-wrapper '__repr__' of ConnectionError object>"
+p65
+sS'__hash__'
+p66
+S"<method-wrapper '__hash__' of ConnectionError object>"
+p67
+ssS'evalue'
+p68
+S"('Connection aborted.', gaierror(8, 'nodename nor servname provided, or not known'))"
+p69
+sg58
+cgluon.html
+XML_unpickle
+p70
+(S's\xba\xa8\x00\x00<div><table><tr><td style="font-weight:bold;vertical-align:top;">ajax</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">application</td><td style="vertical-align:top;">:</td><td><div>ballislife</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">args</td><td style="vertical-align:top;">:</td><td><div><table></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">cid</td><td style="vertical-align:top;">:</td><td><div>None</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">client</td><td style="vertical-align:top;">:</td><td><div>127.0.0.1</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">controller</td><td style="vertical-align:top;">:</td><td><div>default</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">cookies</td><td style="vertical-align:top;">:</td><td><div><table><tr><td style="font-weight:bold;vertical-align:top;">session_id_admin</td><td style="vertical-align:top;">:</td><td><div>127.0.0.1-2726a9d8-295b-4036-92c8-056398564f08<table><tr><td style="font-weight:bold;vertical-align:top;">comment</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">domain</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">expires</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">httponly</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">max-age</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">path</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">secure</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">version</td><td style="vertical-align:top;">:</td><td><div></div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_id_ballislife</td><td style="vertical-align:top;">:</td><td><div>127.0.0.1-4a74681f-3520-4970-add6-efb27186e509<table><tr><td style="font-weight:bold;vertical-align:top;">comment</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">domain</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">expires</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">httponly</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">max-age</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">path</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">secure</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">version</td><td style="vertical-align:top;">:</td><td><div></div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_id_bboard</td><td style="vertical-align:top;">:</td><td><div>127.0.0.1-6ccfe1c7-fbf1-4298-87b0-6c34729aebaa<table><tr><td style="font-weight:bold;vertical-align:top;">comment</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">domain</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">expires</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">httponly</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">max-age</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">path</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">secure</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">version</td><td style="vertical-align:top;">:</td><td><div></div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_id_forsale</td><td style="vertical-align:top;">:</td><td><div>127.0.0.1-fc0df072-d1e9-4b88-973f-e70cac96d160<table><tr><td style="font-weight:bold;vertical-align:top;">comment</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">domain</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">expires</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">httponly</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">max-age</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">path</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">secure</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">version</td><td style="vertical-align:top;">:</td><td><div></div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_id_hw1sub2</td><td style="vertical-align:top;">:</td><td><div>127.0.0.1-aad81459-e3e8-42c2-9d0f-8958df37866d<table><tr><td style="font-weight:bold;vertical-align:top;">comment</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">domain</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">expires</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">httponly</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">max-age</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">path</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">secure</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">version</td><td style="vertical-align:top;">:</td><td><div></div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_id_hw1sub3</td><td style="vertical-align:top;">:</td><td><div>127.0.0.1-0a072570-21a9-46ea-8a28-ae17c9d741f2<table><tr><td style="font-weight:bold;vertical-align:top;">comment</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">domain</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">expires</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">httponly</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">max-age</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">path</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">secure</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">version</td><td style="vertical-align:top;">:</td><td><div></div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_id_hw1sub4</td><td style="vertical-align:top;">:</td><td><div>127.0.0.1-3723f225-5536-41db-af1e-5a55868fdc8d<table><tr><td style="font-weight:bold;vertical-align:top;">comment</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">domain</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">expires</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">httponly</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">max-age</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">path</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">secure</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">version</td><td style="vertical-align:top;">:</td><td><div></div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_id_hw2sub1</td><td style="vertical-align:top;">:</td><td><div>127.0.0.1-f8a9274e-c197-4b84-9029-519fe962bd32<table><tr><td style="font-weight:bold;vertical-align:top;">comment</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">domain</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">expires</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">httponly</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">max-age</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">path</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">secure</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">version</td><td style="vertical-align:top;">:</td><td><div></div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_id_hw2sub2</td><td style="vertical-align:top;">:</td><td><div>127.0.0.1-24da8c36-8f65-446c-9a9a-00a293c6440c<table><tr><td style="font-weight:bold;vertical-align:top;">comment</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">domain</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">expires</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">httponly</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">max-age</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">path</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">secure</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">version</td><td style="vertical-align:top;">:</td><td><div></div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_id_hw2sub3</td><td style="vertical-align:top;">:</td><td><div>127.0.0.1-2619de95-10e2-44e0-9b06-6aedb65a544e<table><tr><td style="font-weight:bold;vertical-align:top;">comment</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">domain</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">expires</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">httponly</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">max-age</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">path</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">secure</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">version</td><td style="vertical-align:top;">:</td><td><div></div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_id_hw2sub4</td><td style="vertical-align:top;">:</td><td><div>127.0.0.1-682929c0-5ab4-40b5-aa37-3a6045be344d<table><tr><td style="font-weight:bold;vertical-align:top;">comment</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">domain</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">expires</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">httponly</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">max-age</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">path</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">secure</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">version</td><td style="vertical-align:top;">:</td><td><div></div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_id_hw3sub1</td><td style="vertical-align:top;">:</td><td><div>127.0.0.1-fafe9c3b-a7ba-4a6e-a550-fa830b18945b<table><tr><td style="font-weight:bold;vertical-align:top;">comment</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">domain</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">expires</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">httponly</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">max-age</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">path</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">secure</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">version</td><td style="vertical-align:top;">:</td><td><div></div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_id_hw3sub2</td><td style="vertical-align:top;">:</td><td><div>127.0.0.1-beb10d97-7199-43d6-a265-4b7ab37af667<table><tr><td style="font-weight:bold;vertical-align:top;">comment</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">domain</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">expires</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">httponly</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">max-age</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">path</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">secure</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">version</td><td style="vertical-align:top;">:</td><td><div></div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_id_hw3sub3</td><td style="vertical-align:top;">:</td><td><div>127.0.0.1-a8ae2c72-0e95-4bc1-a154-e7657f199764<table><tr><td style="font-weight:bold;vertical-align:top;">comment</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">domain</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">expires</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">httponly</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">max-age</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">path</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">secure</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">version</td><td style="vertical-align:top;">:</td><td><div></div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_id_hw3sub4</td><td style="vertical-align:top;">:</td><td><div>127.0.0.1-1dd61602-858e-4cbc-9574-a9ac32b108c6<table><tr><td style="font-weight:bold;vertical-align:top;">comment</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">domain</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">expires</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">httponly</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">max-age</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">path</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">secure</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">version</td><td style="vertical-align:top;">:</td><td><div></div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_id_slugwiki</td><td style="vertical-align:top;">:</td><td><div>127.0.0.1-a2c7ba1c-f0d5-4c8f-a7f8-85d68972855d<table><tr><td style="font-weight:bold;vertical-align:top;">comment</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">domain</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">expires</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">httponly</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">max-age</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">path</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">secure</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">version</td><td style="vertical-align:top;">:</td><td><div></div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_id_welcome</td><td style="vertical-align:top;">:</td><td><div>127.0.0.1-75f4e993-1d87-4857-b9b0-ebe4c798ce8f<table><tr><td style="font-weight:bold;vertical-align:top;">comment</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">domain</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">expires</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">httponly</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">max-age</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">path</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">secure</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">version</td><td style="vertical-align:top;">:</td><td><div></div></td></tr></table></div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">env</td><td style="vertical-align:top;">:</td><td><div><table><tr><td style="font-weight:bold;vertical-align:top;">HTTP_ACCEPT</td><td style="vertical-align:top;">:</td><td><div>text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">HTTP_ACCEPT_ENCODING</td><td style="vertical-align:top;">:</td><td><div>gzip, deflate, sdch</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">HTTP_ACCEPT_LANGUAGE</td><td style="vertical-align:top;">:</td><td><div>en-US,en;q=0.8,es;q=0.6</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">HTTP_CACHE_CONTROL</td><td style="vertical-align:top;">:</td><td><div>max-age=0</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">HTTP_CONNECTION</td><td style="vertical-align:top;">:</td><td><div>keep-alive</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">HTTP_COOKIE</td><td style="vertical-align:top;">:</td><td><div>session_id_hw1sub2=127.0.0.1-aad81459-e3e8-42c2-9d0f-8958df37866d; session_id_hw1sub3=127.0.0.1-0a072570-21a9-46ea-8a28-ae17c9d741f2; session_id_hw1sub4=127.0.0.1-3723f225-5536-41db-af1e-5a55868fdc8d; session_id_hw2sub1=127.0.0.1-f8a9274e-c197-4b84-9029-519fe962bd32; session_id_hw2sub2=127.0.0.1-24da8c36-8f65-446c-9a9a-00a293c6440c; session_id_hw2sub3=127.0.0.1-2619de95-10e2-44e0-9b06-6aedb65a544e; session_id_hw2sub4=127.0.0.1-682929c0-5ab4-40b5-aa37-3a6045be344d; session_id_hw3sub2=127.0.0.1-beb10d97-7199-43d6-a265-4b7ab37af667; session_id_hw3sub1=127.0.0.1-fafe9c3b-a7ba-4a6e-a550-fa830b18945b; session_id_hw3sub3=127.0.0.1-a8ae2c72-0e95-4bc1-a154-e7657f199764; session_id_hw3sub4=127.0.0.1-1dd61602-858e-4cbc-9574-a9ac32b108c6; session_id_slugwiki=127.0.0.1-a2c7ba1c-f0d5-4c8f-a7f8-85d68972855d; session_id_forsale=127.0.0.1-fc0df072-d1e9-4b88-973f-e70cac96d160; session_id_bboard=127.0.0.1-6ccfe1c7-fbf1-4298-87b0-6c34729aebaa; session_id_welcome=127.0.0.1-75f4e993-1d87-4857-b9b0-ebe4c798ce8f; session_id_admin=127.0.0.1-2726a9d8-295b-4036-92c8-056398564f08; session_id_ballislife=127.0.0.1-4a74681f-3520-4970-add6-efb27186e509</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">HTTP_HOST</td><td style="vertical-align:top;">:</td><td><div>127.0.0.1:8000</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">HTTP_REFERER</td><td style="vertical-align:top;">:</td><td><div>http://127.0.0.1:8000/ballislife/default/scores.html</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">HTTP_USER_AGENT</td><td style="vertical-align:top;">:</td><td><div>Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.76 Safari/537.36</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">PATH_INFO</td><td style="vertical-align:top;">:</td><td><div>/ballislife/default/scores.html</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">QUERY_STRING</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">REMOTE_ADDR</td><td style="vertical-align:top;">:</td><td><div>127.0.0.1</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">REMOTE_PORT</td><td style="vertical-align:top;">:</td><td><div>55344</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">REQUEST_METHOD</td><td style="vertical-align:top;">:</td><td><div>GET</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">SCRIPT_NAME</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">SERVER_NAME</td><td style="vertical-align:top;">:</td><td><div>dhcp-209-106.cruznet.ucsc.edu</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">SERVER_PORT</td><td style="vertical-align:top;">:</td><td><div>8000</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">SERVER_PROTOCOL</td><td style="vertical-align:top;">:</td><td><div>HTTP/1.1</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">SERVER_SOFTWARE</td><td style="vertical-align:top;">:</td><td><div>Rocket 1.2.6</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">app_folders</td><td style="vertical-align:top;">:</td><td><div>set([&#x27;/Users/AlyanShafique/Documents/web2py/web2py/applications/admin/&#x27;, &#x27;/Users/AlyanShafique/Documents/web2py/web2py/applications/ballislife/&#x27;, &#x27;/Users/AlyanShafique/Documents/web2py/web2py/applications/welcome/&#x27;])</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">applications_parent</td><td style="vertical-align:top;">:</td><td><div>/Users/AlyanShafique/Documents/web2py/web2py</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">cmd_args</td><td style="vertical-align:top;">:</td><td><div><table></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">cmd_options</td><td style="vertical-align:top;">:</td><td><div>&lt;Values at 0x1046455a8: {&#x27;verbose&#x27;: False, &#x27;ip&#x27;: &#x27;127.0.0.1&#x27;, &#x27;debuglevel&#x27;: 30, &#x27;with_scheduler&#x27;: False, &#x27;ips&#x27;: [&#x27;169.233.209.106&#x27;], &#x27;shutdown_timeout&#x27;: 5, &#x27;taskbar&#x27;: False, &#x27;with_coverage&#x27;: False, &#x27;scheduler_groups&#x27;: None, &#x27;port&#x27;: 8000, &#x27;maxthreads&#x27;: None, &#x27;softcron&#x27;: False, &#x27;server_name&#x27;: &#x27;dhcp-209-106.cruznet.ucsc.edu&#x27;, &#x27;bpython&#x27;: False, &#x27;nogui&#x27;: False, &#x27;pid_filename&#x27;: &#x27;httpserver.pid&#x27;, &#x27;print_errors&#x27;: False, &#x27;extcron&#x27;: False, &#x27;runcron&#x27;: False, &#x27;run_system_tests&#x27;: False, &#x27;test&#x27;: None, &#x27;folder&#x27;: &#x27;/Users/AlyanShafique/Documents/web2py/web2py&#x27;, &#x27;config&#x27;: &#x27;&#x27;, &#x27;minthreads&#x27;: None, &#x27;shell&#x27;: None, &#x27;run&#x27;: &#x27;&#x27;, &#x27;log_filename&#x27;: &#x27;httpserver.log&#x27;, &#x27;profiler_dir&#x27;: None, &#x27;args&#x27;: [&#x27;&#x27;], &#x27;socket_timeout&#x27;: 5, &#x27;ssl_ca_certificate&#x27;: None, &#x27;scheduler&#x27;: None, &#x27;interfaces&#x27;: None, &#x27;ssl_private_key&#x27;: &#x27;&#x27;, &#x27;gae&#x27;: None, &#x27;password&#x27;: &#x27;&lt;ask&gt;&#x27;, &#x27;request_queue_size&#x27;: 5, &#x27;ssl_certificate&#x27;: &#x27;&#x27;, &#x27;cronjob&#x27;: False, &#x27;numthreads&#x27;: None, &#x27;quiet&#x27;: False, &#x27;import_models&#x27;: False, &#x27;timeout&#x27;: 10, &#x27;plain&#x27;: False, &#x27;nobanner&#x27;: False}&gt;</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">db_sessions</td><td style="vertical-align:top;">:</td><td><div>set([])</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">debugging</td><td style="vertical-align:top;">:</td><td><div>True</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">gluon_parent</td><td style="vertical-align:top;">:</td><td><div>/Users/AlyanShafique/Documents/web2py/web2py</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">http_accept</td><td style="vertical-align:top;">:</td><td><div>text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">http_accept_encoding</td><td style="vertical-align:top;">:</td><td><div>gzip, deflate, sdch</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">http_accept_language</td><td style="vertical-align:top;">:</td><td><div>en-US,en;q=0.8,es;q=0.6</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">http_cache_control</td><td style="vertical-align:top;">:</td><td><div>max-age=0</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">http_connection</td><td style="vertical-align:top;">:</td><td><div>keep-alive</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">http_cookie</td><td style="vertical-align:top;">:</td><td><div>session_id_hw1sub2=127.0.0.1-aad81459-e3e8-42c2-9d0f-8958df37866d; session_id_hw1sub3=127.0.0.1-0a072570-21a9-46ea-8a28-ae17c9d741f2; session_id_hw1sub4=127.0.0.1-3723f225-5536-41db-af1e-5a55868fdc8d; session_id_hw2sub1=127.0.0.1-f8a9274e-c197-4b84-9029-519fe962bd32; session_id_hw2sub2=127.0.0.1-24da8c36-8f65-446c-9a9a-00a293c6440c; session_id_hw2sub3=127.0.0.1-2619de95-10e2-44e0-9b06-6aedb65a544e; session_id_hw2sub4=127.0.0.1-682929c0-5ab4-40b5-aa37-3a6045be344d; session_id_hw3sub2=127.0.0.1-beb10d97-7199-43d6-a265-4b7ab37af667; session_id_hw3sub1=127.0.0.1-fafe9c3b-a7ba-4a6e-a550-fa830b18945b; session_id_hw3sub3=127.0.0.1-a8ae2c72-0e95-4bc1-a154-e7657f199764; session_id_hw3sub4=127.0.0.1-1dd61602-858e-4cbc-9574-a9ac32b108c6; session_id_slugwiki=127.0.0.1-a2c7ba1c-f0d5-4c8f-a7f8-85d68972855d; session_id_forsale=127.0.0.1-fc0df072-d1e9-4b88-973f-e70cac96d160; session_id_bboard=127.0.0.1-6ccfe1c7-fbf1-4298-87b0-6c34729aebaa; session_id_welcome=127.0.0.1-75f4e993-1d87-4857-b9b0-ebe4c798ce8f; session_id_admin=127.0.0.1-2726a9d8-295b-4036-92c8-056398564f08; session_id_ballislife=127.0.0.1-4a74681f-3520-4970-add6-efb27186e509</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">http_host</td><td style="vertical-align:top;">:</td><td><div>127.0.0.1:8000</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">http_referer</td><td style="vertical-align:top;">:</td><td><div>http://127.0.0.1:8000/ballislife/default/scores.html</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">http_user_agent</td><td style="vertical-align:top;">:</td><td><div>Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.76 Safari/537.36</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">is_jython</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">is_pypy</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">is_source</td><td style="vertical-align:top;">:</td><td><div>True</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">local_hosts</td><td style="vertical-align:top;">:</td><td><div><table><tr><td><div>::1</div></td></tr><tr><td><div>dhcp-209-106.cruznet.ucsc.edu</div></td></tr><tr><td><div>::ffff:127.0.0.1</div></td></tr><tr><td><div>127.0.0.1</div></td></tr><tr><td><div>169.233.209.106</div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">path_info</td><td style="vertical-align:top;">:</td><td><div>/ballislife/default/scores.html</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">query_string</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">remote_addr</td><td style="vertical-align:top;">:</td><td><div>127.0.0.1</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">remote_port</td><td style="vertical-align:top;">:</td><td><div>55344</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">request_method</td><td style="vertical-align:top;">:</td><td><div>GET</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">request_uri</td><td style="vertical-align:top;">:</td><td><div>/ballislife/default/scores.html</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">script_name</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">server_name</td><td style="vertical-align:top;">:</td><td><div>dhcp-209-106.cruznet.ucsc.edu</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">server_port</td><td style="vertical-align:top;">:</td><td><div>8000</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">server_protocol</td><td style="vertical-align:top;">:</td><td><div>HTTP/1.1</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">server_software</td><td style="vertical-align:top;">:</td><td><div>Rocket 1.2.6</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">web2py_path</td><td style="vertical-align:top;">:</td><td><div>/Users/AlyanShafique/Documents/web2py/web2py</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">web2py_version</td><td style="vertical-align:top;">:</td><td><div>2.9.12-stable+timestamp.2015.02.13.23.31.09</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi.errors</td><td style="vertical-align:top;">:</td><td><div>&lt;open file &#x27;&lt;stderr&gt;&#x27;, mode &#x27;w&#x27; at 0x10028e1e0&gt;</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi.file_wrapper</td><td style="vertical-align:top;">:</td><td><div>&lt;class wsgiref.util.FileWrapper at 0x1039b4120&gt;</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi.input</td><td style="vertical-align:top;">:</td><td><div>&lt;socket._fileobject object at 0x110450050&gt;</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi.multiprocess</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi.multithread</td><td style="vertical-align:top;">:</td><td><div>True</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi.run_once</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi.url_scheme</td><td style="vertical-align:top;">:</td><td><div>http</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi.version</td><td style="vertical-align:top;">:</td><td><div><table><tr><td><div>1</div></td></tr><tr><td><div>0</div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi_errors</td><td style="vertical-align:top;">:</td><td><div>&lt;open file &#x27;&lt;stderr&gt;&#x27;, mode &#x27;w&#x27; at 0x10028e1e0&gt;</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi_file_wrapper</td><td style="vertical-align:top;">:</td><td><div>&lt;class wsgiref.util.FileWrapper at 0x1039b4120&gt;</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi_input</td><td style="vertical-align:top;">:</td><td><div>&lt;socket._fileobject object at 0x110450050&gt;</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi_multiprocess</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi_multithread</td><td style="vertical-align:top;">:</td><td><div>True</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi_run_once</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi_url_scheme</td><td style="vertical-align:top;">:</td><td><div>http</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi_version</td><td style="vertical-align:top;">:</td><td><div><table><tr><td><div>1</div></td></tr><tr><td><div>0</div></td></tr></table></div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">extension</td><td style="vertical-align:top;">:</td><td><div>html</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">folder</td><td style="vertical-align:top;">:</td><td><div>/Users/AlyanShafique/Documents/web2py/web2py/applications/ballislife/</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">function</td><td style="vertical-align:top;">:</td><td><div>scores</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">global_settings</td><td style="vertical-align:top;">:</td><td><div><table><tr><td style="font-weight:bold;vertical-align:top;">app_folders</td><td style="vertical-align:top;">:</td><td><div>set([&#x27;/Users/AlyanShafique/Documents/web2py/web2py/applications/admin/&#x27;, &#x27;/Users/AlyanShafique/Documents/web2py/web2py/applications/ballislife/&#x27;, &#x27;/Users/AlyanShafique/Documents/web2py/web2py/applications/welcome/&#x27;])</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">applications_parent</td><td style="vertical-align:top;">:</td><td><div>/Users/AlyanShafique/Documents/web2py/web2py</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">cmd_args</td><td style="vertical-align:top;">:</td><td><div><table></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">cmd_options</td><td style="vertical-align:top;">:</td><td><div>&lt;Values at 0x1046455a8: {&#x27;verbose&#x27;: False, &#x27;ip&#x27;: &#x27;127.0.0.1&#x27;, &#x27;debuglevel&#x27;: 30, &#x27;with_scheduler&#x27;: False, &#x27;ips&#x27;: [&#x27;169.233.209.106&#x27;], &#x27;shutdown_timeout&#x27;: 5, &#x27;taskbar&#x27;: False, &#x27;with_coverage&#x27;: False, &#x27;scheduler_groups&#x27;: None, &#x27;port&#x27;: 8000, &#x27;maxthreads&#x27;: None, &#x27;softcron&#x27;: False, &#x27;server_name&#x27;: &#x27;dhcp-209-106.cruznet.ucsc.edu&#x27;, &#x27;bpython&#x27;: False, &#x27;nogui&#x27;: False, &#x27;pid_filename&#x27;: &#x27;httpserver.pid&#x27;, &#x27;print_errors&#x27;: False, &#x27;extcron&#x27;: False, &#x27;runcron&#x27;: False, &#x27;run_system_tests&#x27;: False, &#x27;test&#x27;: None, &#x27;folder&#x27;: &#x27;/Users/AlyanShafique/Documents/web2py/web2py&#x27;, &#x27;config&#x27;: &#x27;&#x27;, &#x27;minthreads&#x27;: None, &#x27;shell&#x27;: None, &#x27;run&#x27;: &#x27;&#x27;, &#x27;log_filename&#x27;: &#x27;httpserver.log&#x27;, &#x27;profiler_dir&#x27;: None, &#x27;args&#x27;: [&#x27;&#x27;], &#x27;socket_timeout&#x27;: 5, &#x27;ssl_ca_certificate&#x27;: None, &#x27;scheduler&#x27;: None, &#x27;interfaces&#x27;: None, &#x27;ssl_private_key&#x27;: &#x27;&#x27;, &#x27;gae&#x27;: None, &#x27;password&#x27;: &#x27;&lt;ask&gt;&#x27;, &#x27;request_queue_size&#x27;: 5, &#x27;ssl_certificate&#x27;: &#x27;&#x27;, &#x27;cronjob&#x27;: False, &#x27;numthreads&#x27;: None, &#x27;quiet&#x27;: False, &#x27;import_models&#x27;: False, &#x27;timeout&#x27;: 10, &#x27;plain&#x27;: False, &#x27;nobanner&#x27;: False}&gt;</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">db_sessions</td><td style="vertical-align:top;">:</td><td><div>set([])</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">debugging</td><td style="vertical-align:top;">:</td><td><div>True</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">gluon_parent</td><td style="vertical-align:top;">:</td><td><div>/Users/AlyanShafique/Documents/web2py/web2py</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">is_jython</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">is_pypy</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">is_source</td><td style="vertical-align:top;">:</td><td><div>True</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">local_hosts</td><td style="vertical-align:top;">:</td><td><div><table><tr><td><div>::1</div></td></tr><tr><td><div>dhcp-209-106.cruznet.ucsc.edu</div></td></tr><tr><td><div>::ffff:127.0.0.1</div></td></tr><tr><td><div>127.0.0.1</div></td></tr><tr><td><div>169.233.209.106</div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">web2py_version</td><td style="vertical-align:top;">:</td><td><div>2.9.12-stable+timestamp.2015.02.13.23.31.09</div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">is_https</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">is_local</td><td style="vertical-align:top;">:</td><td><div>True</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">is_restful</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">is_sheduler</td><td style="vertical-align:top;">:</td><td><div>None</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">is_shell</td><td style="vertical-align:top;">:</td><td><div>None</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">now</td><td style="vertical-align:top;">:</td><td><div>datetime.datetime(2015, 3, 14, 21, 42, 43, 767684)</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">raw_args</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">raw_extension</td><td style="vertical-align:top;">:</td><td><div>html</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">url</td><td style="vertical-align:top;">:</td><td><div>/ballislife/default/scores.html</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">utcnow</td><td style="vertical-align:top;">:</td><td><div>datetime.datetime(2015, 3, 15, 4, 42, 43, 767694)</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">uuid</td><td style="vertical-align:top;">:</td><td><div>ballislife/127.0.0.1.2015-03-14.21-42-43.196ae8dd-3813-42a9-8b64-0f0157246419</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi</td><td style="vertical-align:top;">:</td><td><div>&lt;gluon.main.LazyWSGI object at 0x110af1110&gt;</div></td></tr></table></div>'
+tRp71
+sS'frames'
+p72
+(lp73
+(dp74
+S'file'
+p75
+S'/Users/AlyanShafique/Documents/web2py/web2py/gluon/restricted.py'
+p76
+sS'dump'
+p77
+(dp78
+S'environment'
+p79
+S"{'A': <class 'gluon.html.A'>, 'ANY_OF': <class 'gluon.validators.ANY_OF'>, 'ASSIGNJS': <function ASSIGNJS>, 'Auth': <class 'gluon.tools.Auth'>, 'B': <class 'gluon.html.B'>, 'BEAUTIFY': <class 'gluon.html.BEAUTIFY'>, 'BODY': <class 'gluon.html.BODY'>, 'BR': <class 'gluon.html.BR'>, 'BUTTON': <class 'gluon.html.BUTTON'>, 'CAT': <class 'gluon.html.CAT'>, ...}"
+p80
+sS'ccode'
+p81
+S'<code object <module> at 0x1109d0c30, file "/Use...ions/ballislife/controllers/default.py", line 11>'
+p82
+ssS'lnum'
+p83
+I226
+sS'lines'
+p84
+(dp85
+I224
+S'        else:'
+p86
+sI225
+S'            ccode = compile2(code, layer)'
+p87
+sI226
+S'        exec ccode in environment'
+p88
+sI227
+S'    except HTTP:'
+p89
+sI228
+S'        raise'
+p90
+sI229
+S'    except RestrictedError:'
+p91
+sI230
+S'        # do not encapsulate (obfuscate) the original RestrictedError'
+p92
+sI221
+S'    try:'
+p93
+sI222
+S'        if isinstance(code, types.CodeType):'
+p94
+sI223
+S'            ccode = code'
+p95
+ssS'call'
+p96
+S"(code='# -*- coding: utf-8 -*-\\n# this file is released ...,rules)\\n\\nresponse._vars=response._caller(scores)\\n', environment={'A': <class 'gluon.html.A'>, 'ANY_OF': <class 'gluon.validators.ANY_OF'>, 'ASSIGNJS': <function ASSIGNJS>, 'Auth': <class 'gluon.tools.Auth'>, 'B': <class 'gluon.html.B'>, 'BEAUTIFY': <class 'gluon.html.BEAUTIFY'>, 'BODY': <class 'gluon.html.BODY'>, 'BR': <class 'gluon.html.BR'>, 'BUTTON': <class 'gluon.html.BUTTON'>, 'CAT': <class 'gluon.html.CAT'>, ...}, layer='/Users/AlyanShafique/Documents/web2py/web2py/applications/ballislife/controllers/default.py')"
+p97
+sS'func'
+p98
+S'restricted'
+p99
+sa(dp100
+g75
+S'/Users/AlyanShafique/Documents/web2py/web2py/applications/ballislife/controllers/default.py'
+p101
+sg77
+(dp102
+sg83
+I559
+sg84
+(dp103
+I548
+S'def api():'
+p104
+sI549
+S'    """'
+p105
+sI550
+S'    this is example of API with access control'
+p106
+sI551
+S'    WEB2PY provides Hypermedia API (Collection+JSON) Experimental'
+p107
+sI552
+S'    """'
+p108
+sI553
+S'    from gluon.contrib.hypermedia import Collection'
+p109
+sI554
+S'    rules = {'
+p110
+sI555
+S"        '<tablename>': {'GET':{},'POST':{},'PUT':{},'DELETE':{}},"
+p111
+sI556
+S'        }'
+p112
+sI557
+S'    return Collection(db).process(request,response,rules)'
+p113
+ssg96
+S'()'
+p114
+sg98
+S'<module>'
+p115
+sa(dp116
+g75
+S'/Users/AlyanShafique/Documents/web2py/web2py/gluon/globals.py'
+p117
+sg77
+(dp118
+S'self'
+p119
+S'undefined'
+p120
+sS'f'
+S'<function scores>'
+p121
+ssg83
+I393
+sg84
+(dp122
+I388
+S"        self.flash = ''            # used by the default view layout"
+p123
+sI389
+S'        self.meta = Storage()      # used by web2py_ajax.html'
+p124
+sI390
+S'        self.menu = []             # used by the default view layout'
+p125
+sI391
+S'        self.files = []            # used by web2py_ajax.html'
+p126
+sI392
+S'        self._vars = None'
+p127
+sI393
+S'        self._caller = lambda f: f()'
+p128
+sI394
+S'        self._view_environment = None'
+p129
+sI395
+S'        self._custom_commit = None'
+p130
+sI396
+S'        self._custom_rollback = None'
+p131
+sI397
+S"        self.generic_patterns = ['*']"
+p132
+ssg96
+S'(f=<function scores>)'
+p133
+sg98
+S'<lambda>'
+p134
+sa(dp135
+g75
+S'/Users/AlyanShafique/Documents/web2py/web2py/applications/ballislife/controllers/default.py'
+p136
+sg77
+(dp137
+S'url'
+p138
+S"'http://stats.nba.com/scores/#!/03/14/2015'"
+p139
+sS'headers'
+p140
+S"{'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) ...ML, like Gecko) Chrome/39.0.2171.99 Safari/537.36'}"
+p141
+sS'session'
+p142
+S'<requests.sessions.Session object>'
+p143
+sS'session.get'
+p144
+S'<bound method Session.get of <requests.sessions.Session object>>'
+p145
+ssg83
+I197
+sg84
+(dp146
+I192
+S"    url = 'http://stats.nba.com/scores/#!/' + month + '/' + day + '/' + year"
+p147
+sI193
+S"    headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.99 Safari/537.36'}"
+p148
+sI194
+S''
+sI195
+S'    with requests.Session() as session:'
+p149
+sI196
+S'        session.headers = headers'
+p150
+sI197
+S'        session.get(url, headers=headers)'
+p151
+sI198
+S''
+sI199
+S'        params = {'
+p152
+sI200
+S"            'DayOffset': '0',"
+p153
+sI201
+S"            'GameDate': month + '/' + day + '/' + year,"
+p154
+ssg96
+S'()'
+p155
+sg98
+S'scores'
+p156
+sa(dp157
+g75
+S'/Applications/anaconda/lib/python2.7/site-packages/requests/sessions.py'
+p158
+sg77
+(dp159
+S'url'
+p160
+S"'http://stats.nba.com/scores/#!/03/14/2015'"
+p161
+sS'self'
+p162
+S'<requests.sessions.Session object>'
+p163
+sS'self.request'
+p164
+S'<bound method Session.request of <requests.sessions.Session object>>'
+p165
+sS'kwargs'
+p166
+S"{'allow_redirects': True, 'headers': {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) ...ML, like Gecko) Chrome/39.0.2171.99 Safari/537.36'}}"
+p167
+ssg83
+I463
+sg84
+(dp168
+I458
+S'        :param url: URL for the new :class:`Request` object.'
+p169
+sI459
+S'        :param \\*\\*kwargs: Optional arguments that ``request`` takes.'
+p170
+sI460
+S'        """'
+p171
+sI461
+S''
+sI462
+S"        kwargs.setdefault('allow_redirects', True)"
+p172
+sI463
+S"        return self.request('GET', url, **kwargs)"
+p173
+sI464
+S''
+sI465
+S'    def options(self, url, **kwargs):'
+p174
+sI466
+S'        """Sends a OPTIONS request. Returns :class:`Response` object.'
+p175
+sI467
+S''
+ssg96
+S"(self=<requests.sessions.Session object>, url='http://stats.nba.com/scores/#!/03/14/2015', **kwargs={'allow_redirects': True, 'headers': {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) ...ML, like Gecko) Chrome/39.0.2171.99 Safari/537.36'}})"
+p176
+sg98
+S'get'
+p177
+sa(dp178
+g75
+S'/Applications/anaconda/lib/python2.7/site-packages/requests/sessions.py'
+p179
+sg77
+(dp180
+S'resp'
+p181
+g120
+sS'send_kwargs'
+p182
+S"{'allow_redirects': True, 'cert': None, 'proxies': {}, 'stream': False, 'timeout': None, 'verify': True}"
+p183
+sS'prep'
+p184
+S'<PreparedRequest [GET]>'
+p185
+sS'self'
+p186
+S'<requests.sessions.Session object>'
+p187
+sS'self.send'
+p188
+S'<bound method Session.send of <requests.sessions.Session object>>'
+p189
+ssg83
+I451
+sg84
+(dp190
+I448
+S"            'allow_redirects': allow_redirects,"
+p191
+sI449
+S'        }'
+p192
+sI450
+S'        send_kwargs.update(settings)'
+p193
+sI451
+S'        resp = self.send(prep, **send_kwargs)'
+p194
+sI452
+S''
+sI453
+S'        return resp'
+p195
+sI454
+S''
+sI455
+S'    def get(self, url, **kwargs):'
+p196
+sI446
+S'        send_kwargs = {'
+p197
+sI447
+S"            'timeout': timeout,"
+p198
+ssg96
+S"(self=<requests.sessions.Session object>, method='GET', url='http://stats.nba.com/scores/#!/03/14/2015', params=None, data=None, headers={'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) ...ML, like Gecko) Chrome/39.0.2171.99 Safari/537.36'}, cookies=None, files=None, auth=None, timeout=None, allow_redirects=True, proxies={}, hooks=None, stream=None, verify=None, cert=None)"
+p199
+sg98
+g58
+sa(dp200
+g75
+S'/Applications/anaconda/lib/python2.7/site-packages/requests/sessions.py'
+p201
+sg77
+(dp202
+S'request'
+p203
+S'<PreparedRequest [GET]>'
+p204
+sS'adapter'
+p205
+S'<requests.adapters.HTTPAdapter object>'
+p206
+sS'r'
+g120
+sS'adapter.send'
+p207
+S'<bound method HTTPAdapter.send of <requests.adapters.HTTPAdapter object>>'
+p208
+sS'kwargs'
+p209
+S"{'cert': None, 'proxies': {}, 'stream': False, 'timeout': None, 'verify': True}"
+p210
+ssg83
+I557
+sg84
+(dp211
+I552
+S''
+sI553
+S'        # Start time (approximately) of the request'
+p212
+sI554
+S'        start = datetime.utcnow()'
+p213
+sI555
+S''
+sI556
+S'        # Send the request'
+p214
+sI557
+S'        r = adapter.send(request, **kwargs)'
+p215
+sI558
+S''
+sI559
+S'        # Total elapsed time of the request (approximately)'
+p216
+sI560
+S'        r.elapsed = datetime.utcnow() - start'
+p217
+sI561
+S''
+ssg96
+S"(self=<requests.sessions.Session object>, request=<PreparedRequest [GET]>, **kwargs={'cert': None, 'proxies': {}, 'stream': False, 'timeout': None, 'verify': True})"
+p218
+sg98
+S'send'
+p219
+sa(dp220
+g75
+S'/Applications/anaconda/lib/python2.7/site-packages/requests/adapters.py'
+p221
+sg77
+(dp222
+S'global ConnectionError'
+p223
+S"<class 'requests.exceptions.ConnectionError'>"
+p224
+sS'request'
+p225
+S'<PreparedRequest [GET]>'
+p226
+sS'err'
+p227
+S"ProtocolError('Connection aborted.', gaierror(8, 'nodename nor servname provided, or not known'))"
+p228
+ssg83
+I407
+sg84
+(dp229
+I402
+S'                else:'
+p230
+sI403
+S'                    # All is well, return the connection to the pool.'
+p231
+sI404
+S'                    conn._put_conn(low_conn)'
+p232
+sI405
+S''
+sI406
+S'        except (ProtocolError, socket.error) as err:'
+p233
+sI407
+S'            raise ConnectionError(err, request=request)'
+p234
+sI408
+S''
+sI409
+S'        except MaxRetryError as e:'
+p235
+sI410
+S'            if isinstance(e.reason, ConnectTimeoutError):'
+p236
+sI411
+S'                raise ConnectTimeout(e, request=request)'
+p237
+ssg96
+S'(self=<requests.adapters.HTTPAdapter object>, request=<PreparedRequest [GET]>, stream=False, timeout=<requests.packages.urllib3.util.timeout.Timeout object>, verify=True, cert=None, proxies={})'
+p238
+sg98
+g219
+sasS'pyver'
+p239
+S'Python 2.7.8: /Applications/anaconda/bin/python (prefix: /Applications/anaconda)'
+p240
+sS'session'
+p241
+g70
+(S's\x1a\x00\x00\x00<div><table></table></div>'
+tRp242
+sS'etype'
+p243
+S"<class 'requests.exceptions.ConnectionError'>"
+p244
+sS'date'
+p245
+S'Sat Mar 14 21:42:43 2015'
+p246
+sg54
+g70
+(S's\xf42\x00\x00<div><table><tr><td style="font-weight:bold;vertical-align:top;">body</td><td style="vertical-align:top;">:</td><td><div>&lt;cStringIO.StringO object at 0x10f4e3ae8&gt;</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">cookies</td><td style="vertical-align:top;">:</td><td><div><table><tr><td style="font-weight:bold;vertical-align:top;">session_id_ballislife</td><td style="vertical-align:top;">:</td><td><div>127.0.0.1-4a74681f-3520-4970-add6-efb27186e509<table><tr><td style="font-weight:bold;vertical-align:top;">comment</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">domain</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">expires</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">httponly</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">max-age</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">path</td><td style="vertical-align:top;">:</td><td><div>/</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">secure</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">version</td><td style="vertical-align:top;">:</td><td><div></div></td></tr></table></div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">delimiters</td><td style="vertical-align:top;">:</td><td><div><table><tr><td><div>{{</div></td></tr><tr><td><div>}}</div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">files</td><td style="vertical-align:top;">:</td><td><div><table></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">flash</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">form_label_separator</td><td style="vertical-align:top;">:</td><td><div>: </div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">formstyle</td><td style="vertical-align:top;">:</td><td><div>table3cols</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">generic_patterns</td><td style="vertical-align:top;">:</td><td><div><table><tr><td><div>*</div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">google_analytics_id</td><td style="vertical-align:top;">:</td><td><div>None</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">headers</td><td style="vertical-align:top;">:</td><td><div><table><tr><td style="font-weight:bold;vertical-align:top;">X-Powered-By</td><td style="vertical-align:top;">:</td><td><div>web2py</div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">logo</td><td style="vertical-align:top;">:</td><td><div><a class="brand" href="http://www.web2py.com/"><b>web<span>2</span>py</b>&trade;&nbsp;</a></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">menu</td><td style="vertical-align:top;">:</td><td><div><table><tr><td><div><table><tr><td><div>Home</div></td></tr><tr><td><div>False</div></td></tr><tr><td><div>/ballislife/default/index</div></td></tr><tr><td><div><table></table></div></td></tr></table></div></td></tr><tr><td><div><table><tr><td><div><span class="highlighted">web2py</span></div></td></tr><tr><td><div>False</div></td></tr><tr><td><div>http://web2py.com</div></td></tr><tr><td><div><table><tr><td><div><table><tr><td><div>My Sites</div></td></tr><tr><td><div>False</div></td></tr><tr><td><div>/admin/default/site</div></td></tr></table></div></td></tr><tr><td><div><table><tr><td><div>This App</div></td></tr><tr><td><div>False</div></td></tr><tr><td><div>/admin/default/design/ballislife</div></td></tr><tr><td><div>[(&lt;lazyT &#x27;Controller&#x27;&gt;, False, &#x27;/admin/default/edit/ballislife/controllers/default.py&#x27;), (&lt;lazyT &#x27;View&#x27;&gt;, False, &#x27;/admin/default/edit/ballislife/views/default/scores.html&#x27;), (&lt;lazyT &#x27;Layout&#x27;&gt;, False, &#x27;/admin/default/edit/ballislife/views/layout.html&#x27;), (&lt;lazyT &#x27;Stylesheet&#x27;&gt;, False, &#x27;/admin/default/edit/ballislife/static/css/web2py.css&#x27;), (&lt;lazyT &#x27;DB Model&#x27;&gt;, False, &#x27;/admin/default/edit/ballislife/models/db.py&#x27;), (&lt;lazyT &#x27;Menu Model&#x27;&gt;, False, &#x27;/admin/default/edit/ballislife/models/menu.py&#x27;), (&lt;lazyT &#x27;Database&#x27;&gt;, False, &#x27;/ballislife/appadmin/index&#x27;), (&lt;lazyT &#x27;Errors&#x27;&gt;, False, &#x27;/admin/default/errors/ballislife&#x27;), (&lt;lazyT &#x27;About&#x27;&gt;, False, &#x27;/admin/default/about/ballislife&#x27;)]</div></td></tr></table></div></td></tr><tr><td><div><table><tr><td><div>web2py.com</div></td></tr><tr><td><div>False</div></td></tr><tr><td><div>http://www.web2py.com</div></td></tr><tr><td><div>[(&lt;lazyT &#x27;Download&#x27;&gt;, False, &#x27;http://www.web2py.com/examples/default/download&#x27;), (&lt;lazyT &#x27;Support&#x27;&gt;, False, &#x27;http://www.web2py.com/examples/default/support&#x27;), (&lt;lazyT &#x27;Demo&#x27;&gt;, False, &#x27;http://web2py.com/demo_admin&#x27;), (&lt;lazyT &#x27;Quick Examples&#x27;&gt;, False, &#x27;http://web2py.com/examples/default/examples&#x27;), (&lt;lazyT &#x27;FAQ&#x27;&gt;, False, &#x27;http://web2py.com/AlterEgo&#x27;), (&lt;lazyT &#x27;Videos&#x27;&gt;, False, &#x27;http://www.web2py.com/examples/default/videos/&#x27;), (&lt;lazyT &#x27;Free Applications&#x27;&gt;, False, &#x27;http://web2py.com/appliances&#x27;), (&lt;lazyT &#x27;Plugins&#x27;&gt;, False, &#x27;http://web2py.com/plugins&#x27;), (&lt;lazyT &#x27;Layouts&#x27;&gt;, False, &#x27;http://web2py.com/layouts&#x27;), (&lt;lazyT &#x27;Recipes&#x27;&gt;, False, &#x27;http://web2pyslices.com/&#x27;), (&lt;lazyT &#x27;Semantic&#x27;&gt;, False, &#x27;http://web2py.com/semantic&#x27;)]</div></td></tr></table></div></td></tr><tr><td><div><table><tr><td><div>Documentation</div></td></tr><tr><td><div>False</div></td></tr><tr><td><div>http://www.web2py.com/book</div></td></tr><tr><td><div>[(&lt;lazyT &#x27;Preface&#x27;&gt;, False, &#x27;http://www.web2py.com/book/default/chapter/00&#x27;), (&lt;lazyT &#x27;Introduction&#x27;&gt;, False, &#x27;http://www.web2py.com/book/default/chapter/01&#x27;), (&lt;lazyT &#x27;Python&#x27;&gt;, False, &#x27;http://www.web2py.com/book/default/chapter/02&#x27;), (&lt;lazyT &#x27;Overview&#x27;&gt;, False, &#x27;http://www.web2py.com/book/default/chapter/03&#x27;), (&lt;lazyT &#x27;The Core&#x27;&gt;, False, &#x27;http://www.web2py.com/book/default/chapter/04&#x27;), (&lt;lazyT &#x27;The Views&#x27;&gt;, False, &#x27;http://www.web2py.com/book/default/chapter/05&#x27;), (&lt;lazyT &#x27;Database&#x27;&gt;, False, &#x27;http://www.web2py.com/book/default/chapter/06&#x27;), (&lt;lazyT &#x27;Forms and Validators&#x27;&gt;, False, &#x27;http://www.web2py.com/book/default/chapter/07&#x27;), (&lt;lazyT &#x27;Email and SMS&#x27;&gt;, False, &#x27;http://www.web2py.com/book/default/chapter/08&#x27;), (&lt;lazyT &#x27;Access Control&#x27;&gt;, False, &#x27;http://www.web2py.com/book/default/chapter/09&#x27;), (&lt;lazyT &#x27;Services&#x27;&gt;, False, &#x27;http://www.web2py.com/book/default/chapter/10&#x27;), (&lt;lazyT &#x27;Ajax Recipes&#x27;&gt;, False, &#x27;http://www.web2py.com/book/default/chapter/11&#x27;), (&lt;lazyT &#x27;Components and Plugins&#x27;&gt;, False, &#x27;http://www.web2py.com/book/default/chapter/12&#x27;), (&lt;lazyT &#x27;Deployment Recipes&#x27;&gt;, False, &#x27;http://www.web2py.com/book/default/chapter/13&#x27;), (&lt;lazyT &#x27;Other Recipes&#x27;&gt;, False, &#x27;http://www.web2py.com/book/default/chapter/14&#x27;), (&lt;lazyT &#x27;Buy this book&#x27;&gt;, False, &#x27;http://stores.lulu.com/web2py&#x27;)]</div></td></tr></table></div></td></tr><tr><td><div><table><tr><td><div>Community</div></td></tr><tr><td><div>False</div></td></tr><tr><td><div>None</div></td></tr><tr><td><div>[(&lt;lazyT &#x27;Groups&#x27;&gt;, False, &#x27;http://www.web2py.com/examples/default/usergroups&#x27;), (&lt;lazyT &#x27;Twitter&#x27;&gt;, False, &#x27;http://twitter.com/web2py&#x27;), (&lt;lazyT &#x27;Live Chat&#x27;&gt;, False, &#x27;http://webchat.freenode.net/?channels=web2py&#x27;)]</div></td></tr></table></div></td></tr><tr><td><div><table><tr><td><div>Plugins</div></td></tr><tr><td><div>False</div></td></tr><tr><td><div>None</div></td></tr><tr><td><div>[(&#x27;plugin_wiki&#x27;, False, &#x27;http://web2py.com/examples/default/download&#x27;), (&lt;lazyT &#x27;Other Plugins&#x27;&gt;, False, &#x27;http://web2py.com/plugins&#x27;), (&lt;lazyT &#x27;Layout Plugins&#x27;&gt;, False, &#x27;http://web2py.com/layouts&#x27;)]</div></td></tr></table></div></td></tr></table></div></td></tr></table></div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">meta</td><td style="vertical-align:top;">:</td><td><div><table><tr><td style="font-weight:bold;vertical-align:top;">author</td><td style="vertical-align:top;">:</td><td><div>Your Name &lt;you@example.com&gt;</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">generator</td><td style="vertical-align:top;">:</td><td><div>Web2py Web Framework</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">keywords</td><td style="vertical-align:top;">:</td><td><div>web2py, python, framework</div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">models_to_run</td><td style="vertical-align:top;">:</td><td><div><table><tr><td><div>^\\w+\\.py$</div></td></tr><tr><td><div>^default/\\w+\\.py$</div></td></tr><tr><td><div>^default/scores/\\w+\\.py$</div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">postprocessing</td><td style="vertical-align:top;">:</td><td><div><table></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_client</td><td style="vertical-align:top;">:</td><td><div>127.0.0.1</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_cookie_compression_level</td><td style="vertical-align:top;">:</td><td><div>None</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_cookie_expires</td><td style="vertical-align:top;">:</td><td><div>None</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_cookie_key</td><td style="vertical-align:top;">:</td><td><div>None</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_data_name</td><td style="vertical-align:top;">:</td><td><div>session_data_ballislife</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_file</td><td style="vertical-align:top;">:</td><td><div>&lt;open file &#x27;/Users/AlyanShafique/Documents/web2py/web2py/applications/ballislife/sessions/061/190/127.0.0.1-4a74681f-3520-4970-add6-efb27186e509&#x27;, mode &#x27;rb+&#x27; at 0x110bb88a0&gt;</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_filename</td><td style="vertical-align:top;">:</td><td><div>/Users/AlyanShafique/Documents/web2py/web2py/applications/ballislife/sessions/127.0.0.1-4a74681f-3520-4970-add6-efb27186e509</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_hash</td><td style="vertical-align:top;">:</td><td><div>6123592aedaccc4fb0ac0dded598dcc5</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_id</td><td style="vertical-align:top;">:</td><td><div>127.0.0.1-4a74681f-3520-4970-add6-efb27186e509</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_id_name</td><td style="vertical-align:top;">:</td><td><div>session_id_ballislife</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_locked</td><td style="vertical-align:top;">:</td><td><div>True</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_masterapp</td><td style="vertical-align:top;">:</td><td><div>ballislife</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_new</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_storage_type</td><td style="vertical-align:top;">:</td><td><div>file</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">status</td><td style="vertical-align:top;">:</td><td><div>200</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">subtitle</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">title</td><td style="vertical-align:top;">:</td><td><div>Ballislife</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">view</td><td style="vertical-align:top;">:</td><td><div>default/scores.html</div></td></tr></table></div>'
+tRp247
+sS'locals'
+p248
+(dp249
+S'proxies'
+p250
+S'{}'
+p251
+sS'err'
+p252
+S"ProtocolError('Connection aborted.', gaierror(8, 'nodename nor servname provided, or not known'))"
+p253
+sS'stream'
+p254
+S'False'
+p255
+sS'url'
+p256
+S"'/scores/'"
+p257
+sS'verify'
+p258
+S'True'
+p259
+sS'self'
+p260
+S'<requests.adapters.HTTPAdapter object>'
+p261
+sg58
+S'<PreparedRequest [GET]>'
+p262
+sS'cert'
+p263
+S'None'
+p264
+sS'timeout'
+p265
+S'<requests.packages.urllib3.util.timeout.Timeout object>'
+p266
+sS'chunked'
+p267
+g255
+sS'conn'
+p268
+S'<requests.packages.urllib3.connectionpool.HTTPConnectionPool object>'
+p269
+sssS'traceback'
+p270
+S'Traceback (most recent call last):\n  File "/Users/AlyanShafique/Documents/web2py/web2py/gluon/restricted.py", line 226, in restricted\n    exec ccode in environment\n  File "/Users/AlyanShafique/Documents/web2py/web2py/applications/ballislife/controllers/default.py", line 559, in <module>\n  File "/Users/AlyanShafique/Documents/web2py/web2py/gluon/globals.py", line 393, in <lambda>\n    self._caller = lambda f: f()\n  File "/Users/AlyanShafique/Documents/web2py/web2py/applications/ballislife/controllers/default.py", line 197, in scores\n    session.get(url, headers=headers)\n  File "/Applications/anaconda/lib/python2.7/site-packages/requests/sessions.py", line 463, in get\n    return self.request(\'GET\', url, **kwargs)\n  File "/Applications/anaconda/lib/python2.7/site-packages/requests/sessions.py", line 451, in request\n    resp = self.send(prep, **send_kwargs)\n  File "/Applications/anaconda/lib/python2.7/site-packages/requests/sessions.py", line 557, in send\n    r = adapter.send(request, **kwargs)\n  File "/Applications/anaconda/lib/python2.7/site-packages/requests/adapters.py", line 407, in send\n    raise ConnectionError(err, request=request)\nConnectionError: (\'Connection aborted.\', gaierror(8, \'nodename nor servname provided, or not known\'))\n'
+p271
+s.
