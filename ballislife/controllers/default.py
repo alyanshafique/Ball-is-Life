@@ -19,11 +19,13 @@ import time
 live_games = []
 
 def index():
+    """Get parameters for current date to pass into url"""
     day = time.strftime('%d')
     month = time.strftime('%m')
     year = time.strftime('%Y')
     url = 'http://stats.nba.com/scores/#!/' + month + '/' + day + '/' + year
     headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.99 Safari/537.36'}
+    """Get results from response at NBA.com to obtain standings for Eastern and Western Conference"""
     with requests.Session() as session:
         session.headers = headers
         session.get(url, headers=headers)
@@ -43,9 +45,10 @@ def index():
     return dict(eastHeaders=eastHeaders,eastRows=eastRows,westHeaders=westHeaders,westRows=westRows)
 
 def game_info():
+    """get parameters from scores view to pass into get_live_scores()"""
     arg1 = request.args(0)
     arg2 = request.args(1)
-    print arg1, arg2
+    """Check to see if play by play data is returned, otherwise, print 'No Info Found'"""
     try:
         get_live_scores(arg1, arg2)
         live_games_cols = ['QUARTER', 'TIME', 'EVENT']
@@ -57,9 +60,11 @@ def game_info():
         return dict(live_games_df=live_games_df, arg1=arg1, arg2=arg2)
 
 def get_live_scores(team1, team2):
+    """Get parameters for current date to pass into url"""
     day = time.strftime('%d')
     month = time.strftime('%m')
     year = time.strftime('%Y')
+    """Check to see if xml file for quarterly play by play data is available, else print 'DNE' to log"""
     try: 
         if (urllib2.urlopen('http://data.nba.com/data/5s/xml/nbacom/2014/scores/'+year+month+day+'/'+team1+team2+'/pbp_1.xml').getcode() == 200):
             url = 'http://data.nba.com/data/5s/xml/nbacom/2014/scores/'+year+month+day+'/'+team1+team2+'/pbp_1.xml'
@@ -104,6 +109,7 @@ def get_live_scores(team1, team2):
                 live_games.append({'QUARTER': '4', 'TIME': val, 'EVENT': event.text})
     except: 
         print 'DNE'
+    """Check to see if xml file for overtime (up to 3OT) play by play data is available, else print 'DNE' to log"""
     try: 
         if (urllib2.urlopen('http://data.nba.com/data/5s/xml/nbacom/2014/scores/'+year+month+day+'/'+team1+team2+'/pbp_5.xml').getcode() == 200):
             url = 'http://data.nba.com/data/5s/xml/nbacom/2014/scores/'+year+month+day+'/'+team1+team2+'/pbp_5.xml'
@@ -139,13 +145,13 @@ def get_live_scores(team1, team2):
         print 'DNE'
     
 def scores():
-    
+    """Get parameters for current date to pass into url"""
     day = time.strftime('%d')
     month = time.strftime('%m')
     year = time.strftime('%Y')
     url = 'http://stats.nba.com/scores/#!/' + month + '/' + day + '/' + year
     headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.99 Safari/537.36'}
-
+    """Get results from response at NBA.com to obtain simple boxscore for daily games"""
     with requests.Session() as session:
         session.headers = headers
         session.get(url, headers=headers)
@@ -165,7 +171,7 @@ def scores():
 def team_stats():
     url = "http://stats.nba.com/league/team/#!/advanced/"
     headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.99 Safari/537.36'}
-
+    """Get results from response at NBA.com to obtain stats for each team"""
     with requests.Session() as session:
         session.headers = headers
         session.get(url, headers=headers)
@@ -205,10 +211,11 @@ def team_stats():
         
 
 def view():
+    """Get player from database"""
     p = db.player(request.args(0))
     url = 'http://stats.nba.com/player/#!/' + p.player_id + '/stats/'
     headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.99 Safari/537.36'}
-
+    """Get results from response at NBA.com to obtain stats and info for selected player"""
     with requests.Session() as session:
         session.headers = headers
         session.get(url, headers=headers)
@@ -258,18 +265,20 @@ def view():
     return dict(headers=headers, rows=rows,infoHeaders=infoHeaders,infoRows=infoRows, name=name)
 
 def player_stats():
+    """Get player from database"""
     q = db.player
     """Will continue inserting into db.player
     for x in teams:
         for y,z in teams[x].items():
             db.player.insert(**{'name':y, 'player_id':z, 'team':x})"""
-
+    """Create button to view player from SQLFORM"""
     def generate_view_button(row):
         view_page = A('View', _class='btn', _href=URL('default', 'view', args=[row.id]))
         return view_page
     links = [
         dict(header='', body = generate_view_button),
         ]
+    """Create SQLFORM with list of all players"""
     form = SQLFORM.grid(q,
         fields=[db.player.name, db.player.team],csv=False, orderby=db.player.name, details=False, links=links)
     return dict(form=form)
@@ -283,7 +292,7 @@ def stats():
 def top_players():
     url = "http://stats.nba.com/"
     headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.99 Safari/537.36'}
-
+    """Get results from response at NBA.com to obtain top 5 players for main stats"""
     with requests.Session() as session:
         session.headers = headers
         session.get(url, headers=headers)
