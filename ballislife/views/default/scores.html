@@ -95,9 +95,9 @@
                 			{{home = row[4]}}
                 			{{away = rows[i][4]}}
                 			{{=A('View Game Info', _class='btn', _href=URL('default', 'game_info',args=[home,away]))}}
-	                    	{{=TABLE(TR(TH('TEAM'),TH('RECORD'),TH('1'),TH('2'),TH('3'),TH('4')),
-	                             TR(rows[i][4],rows[i][6],rows[i][7],rows[i][8],rows[i][9],rows[i][10]),
-	                              TR(row[4],row[6],row[7],row[8],row[9],row[10]),_class='table')}}
+	                    	{{=TABLE(TR(TH('TEAM'),TH('RECORD'),TH('1'),TH('2'),TH('3'),TH('4'),TH('SCORE')),
+	                             TR(rows[i][4],rows[i][6],rows[i][7],rows[i][8],rows[i][9],rows[i][10],rows[i][21]),
+	                              TR(row[4],row[6],row[7],row[8],row[9],row[10],row[21]),_class='table')}}
 	                        <div>
 	                        </div>
 	                    {{pass}}
@@ -107,9 +107,9 @@
                 			{{home = row[4]}}
                 			{{away = rows[i][4]}}
 	                		{{=A('View Game Info', _class='btn', _href=URL('default', 'game_info',args=[home,away]))}}
-	                    	{{=TABLE(TR(TH('TEAM'),TH('RECORD'),TH('1'),TH('2'),TH('3'),TH('4')),
-	                             TR(rows[i][4],rows[i][6],rows[i][7],rows[i][8],rows[i][9],rows[i][10]),
-	                              TR(row[4],row[6],row[7],row[8],row[9],row[10]),_class='table')}}
+	                    	{{=TABLE(TR(TH('TEAM'),TH('RECORD'),TH('1'),TH('2'),TH('3'),TH('4'),TH('SCORE')),
+	                             TR(rows[i][4],rows[i][6],rows[i][7],rows[i][8],rows[i][9],rows[i][10],rows[i][21]),
+	                              TR(row[4],row[6],row[7],row[8],row[9],row[10],row[21]),_class='table')}}
                     </div>
                 	{{pass}}
                 {{pass}}

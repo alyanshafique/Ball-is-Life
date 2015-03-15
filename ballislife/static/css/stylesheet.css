@@ -1,0 +1,73 @@
+body {
+        background: url(http://hoop76.com/wp-content/uploads/2013/02/NBA-court2.jpg);
+        height: 1200px;
+    }
+    div {
+        display: block;
+    }
+    .container {
+        margin-top: 75px;
+    }
+    .navbar-inner{
+        background-image: url(http://images.fineartamerica.com/images-medium-large/1-basketball--leather-close-up-ben-haslam.jpg);
+        height: 100px;
+        border-color: black;
+        text-align: center;
+    }
+    .navbar .nav {
+        float: right;
+    }
+    .navbar .brand {
+        color: #CCCCCC;
+        margin-top: 55px;
+        font-family: Brush Script MT;
+        font-size: 75px;
+    }
+    .navbar .nav > li > a {
+        color:  white;
+        margin-top: 60px;
+        font-family: Charter;
+        font-weight: bold;
+        font-size: 20px;
+        text-shadow: none;
+        text-align: center;
+    }
+    .navbar .nav > li.active > a {
+        color: black;
+    }
+    .navbar .nav > li.active > a:hover {
+        background-color: black;
+        color: white;
+    }
+    .navbar .nav > li > a:hover {
+        background-color: black;
+        color: white;
+    }
+    .navbar-default .navbar-nav > .active > a:focus
+    .web2py_console form {
+        background-color: white;
+        font-family: Impact;
+    }
+    .table .table-hover {
+        color: black;
+        background-color: white;
+    }
+    table {
+    	position: absolute;
+    }
+    tr {
+       text-transform: capitalize;
+       font-family: Futura;
+    }
+    tr:hover td {
+        background:#DFDFDF;
+    }
+    tr:nth-child(even) {
+        background-color: #DFDFDF;
+    }
+    tr:nth-child(odd) {
+        background-color: white;
+    }
+    .web2py_paginator {
+    	margin-top:730px;
+    }
