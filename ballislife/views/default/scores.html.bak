@@ -47,13 +47,8 @@
         color: white;
     }
     .navbar-default .navbar-nav > .active > a:focus
-    .web2py_console form {
-        background-color: white;
-        font-family: Impact;
-    }
     .table .table-hover {
-        color: black;
-        background-color: white;
+        position:absolute;
     }
     table {
     	position: absolute;
@@ -93,25 +88,32 @@
                 <h1 style="color:black; font-weight: bold">Live Scores</h1>
             </div>
         </div>
-        <table class="table table-hover">
-            <script>
-                var t = {{=rows}};
-
-                document.write("<tr><td></td>");
-                document.write("<td>TEAM</td>");
-                document.write("<td>RECORD</td>");
-                document.write("<td>1</td>");
-                document.write("<td>2</td>");
-                document.write("<td>3</td>");
-                document.write("<td>4</td></tr>");
-
-                /*for (var i = 0; i < t.length(); i++) {
-                    document.write("<tr><td>t[i][1]</td>");
-                    document.write("<td>t[i][1]</td>");
-                    document.write("<td>t[i][1]</td></tr>");
-                }*/
-            </script>
-        </table>
+        <div class="table table-hover">
+                {{for row in rows:}}
+                	{{if rows.index(row) == 0:}}
+                		{{i = rows.index(row) + 1}}
+                			{{home = row[4]}}
+                			{{away = rows[i][4]}}
+                			{{print home}}
+                			{{print away}}
+                			{{=A('View Game Info', _class='btn', _href=URL('default', 'game_info',args=[row[4],row[i][4]]))}}
+	                    	{{=TABLE(TR(TH('TEAM'),TH('RECORD'),TH('1'),TH('2'),TH('3'),TH('4')),
+	                             TR(rows[i][4],rows[i][6],rows[i][7],rows[i][8],rows[i][9],rows[i][10]),
+	                              TR(row[4],row[6],row[7],row[8],row[9],row[10]),_class='table')}}
+	                        <div>
+	                        </div>
+	                    {{pass}}
+                	{{if (rows.index(row)) % 2 == 0 and rows.index(row) > 1:}}
+                		<div style="margin-top:150px">
+	                		{{i = rows.index(row) + 1}}
+	                		{{=A('View Game Info', _class='btn', _href=URL('default', 'game_info'))}}
+	                    	{{=TABLE(TR(TH('TEAM'),TH('RECORD'),TH('1'),TH('2'),TH('3'),TH('4')),
+	                             TR(rows[i][4],rows[i][6],rows[i][7],rows[i][8],rows[i][9],rows[i][10]),
+	                              TR(row[4],row[6],row[7],row[8],row[9],row[10]),_class='table')}}
+                    </div>
+                	{{pass}}
+                {{pass}}
+        </div>
     </body>
 
 </html>

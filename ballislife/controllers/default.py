@@ -64,11 +64,27 @@ def index():
         westRows = results['resultSets'][5]['rowSet']
     return dict(eastHeaders=eastHeaders,eastRows=eastRows,westHeaders=westHeaders,westRows=westRows)
 
+def game_info():
+    arg1 = request.args(0)
+    arg2 = request.args(1)
+    print arg1, arg2
+    try:
+        get_live_scores(arg1, arg2)
+        live_games_cols = ['QUARTER', 'TIME', 'EVENT']
+        live_games_df = pd.DataFrame(live_games,columns = live_games_cols)
+        live_games_df = live_games_df.to_html(classes="table table-condensed", index=False)
+        return dict(live_games_df=live_games_df, arg1=arg1, arg2=arg2)
+    except:
+        live_games_df = 'No Info Found'
+        return dict(live_games_df=live_games_df, arg1=arg1, arg2=arg2)
 
-def get_live_scores():
+def get_live_scores(team1, team2):
+    day = time.strftime('%d')
+    month = time.strftime('%m')
+    year = time.strftime('%Y')
     try: 
-        if (urllib2.urlopen('http://data.nba.com/data/5s/xml/nbacom/2014/scores/20150301/GSWBOS/pbp_1.xml').getcode() == 200):
-            url = 'http://data.nba.com/data/5s/xml/nbacom/2014/scores/20150301/GSWBOS/pbp_1.xml'
+        if (urllib2.urlopen('http://data.nba.com/data/5s/xml/nbacom/2014/scores/'+year+month+day+'/'+team1+team2+'/pbp_1.xml').getcode() == 200):
+            url = 'http://data.nba.com/data/5s/xml/nbacom/2014/scores/'+year+month+day+'/'+team1+team2+'/pbp_1.xml'
             content = urllib2.urlopen(url).read()   
             quarter1 = etree.fromstring(content)
             for event in quarter1.xpath("//event"):
@@ -78,8 +94,8 @@ def get_live_scores():
     except: 
         print 'DNE'
     try: 
-        if (urllib2.urlopen('http://data.nba.com/data/5s/xml/nbacom/2014/scores/20150301/GSWBOS/pbp_2.xml').getcode() == 200):
-            url = 'http://data.nba.com/data/5s/xml/nbacom/2014/scores/20150301/GSWBOS/pbp_2.xml'
+        if (urllib2.urlopen('http://data.nba.com/data/5s/xml/nbacom/2014/scores/'+year+month+day+'/'+team1+team2+'/pbp_2.xml').getcode() == 200):
+            url = 'http://data.nba.com/data/5s/xml/nbacom/2014/scores/'+year+month+day+'/'+team1+team2+'/pbp_2.xml'
             content = urllib2.urlopen(url).read()   
             quarter2 = etree.fromstring(content)
             for event in quarter2.xpath("//event"):
@@ -89,8 +105,8 @@ def get_live_scores():
     except: 
         print 'DNE'
     try: 
-        if (urllib2.urlopen('http://data.nba.com/data/5s/xml/nbacom/2014/scores/20150301/GSWBOS/pbp_3.xml').getcode() == 200):
-            url = 'http://data.nba.com/data/5s/xml/nbacom/2014/scores/20150301/GSWBOS/pbp_3.xml'
+        if (urllib2.urlopen('http://data.nba.com/data/5s/xml/nbacom/2014/scores/'+year+month+day+'/'+team1+team2+'/pbp_3.xml').getcode() == 200):
+            url = 'http://data.nba.com/data/5s/xml/nbacom/2014/scores/'+year+month+day+'/'+team1+team2+'/pbp_3.xml'
             content = urllib2.urlopen(url).read()   
             quarter3 = etree.fromstring(content)
             for event in quarter3.xpath("//event"):
@@ -100,8 +116,8 @@ def get_live_scores():
     except: 
         print 'DNE'
     try: 
-        if (urllib2.urlopen('http://data.nba.com/data/5s/xml/nbacom/2014/scores/20150301/GSWBOS/pbp_4.xml').getcode() == 200):
-            url = 'http://data.nba.com/data/5s/xml/nbacom/2014/scores/20150301/GSWBOS/pbp_4.xml'
+        if (urllib2.urlopen('http://data.nba.com/data/5s/xml/nbacom/2014/scores/'+year+month+day+'/'+team1+team2+'/pbp_4.xml').getcode() == 200):
+            url = 'http://data.nba.com/data/5s/xml/nbacom/2014/scores/'+year+month+day+'/'+team1+team2+'/pbp_4.xml'
             content = urllib2.urlopen(url).read()   
             quarter4 = etree.fromstring(content)
             for event in quarter4.xpath("//event"):
@@ -111,8 +127,8 @@ def get_live_scores():
     except: 
         print 'DNE'
     try: 
-        if (urllib2.urlopen('http://data.nba.com/data/5s/xml/nbacom/2014/scores/20150301/GSWBOS/pbp_5.xml').getcode() == 200):
-            url = 'http://data.nba.com/data/5s/xml/nbacom/2014/scores/20150301/GSWBOS/pbp_5.xml'
+        if (urllib2.urlopen('http://data.nba.com/data/5s/xml/nbacom/2014/scores/'+year+month+day+'/'+team1+team2+'/pbp_5.xml').getcode() == 200):
+            url = 'http://data.nba.com/data/5s/xml/nbacom/2014/scores/'+year+month+day+'/'+team1+team2+'/pbp_5.xml'
             content = urllib2.urlopen(url).read()   
             quarter4 = etree.fromstring(content)
             for event in quarter4.xpath("//event"):
@@ -122,8 +138,8 @@ def get_live_scores():
     except: 
         print 'DNE'
     try: 
-        if (urllib2.urlopen('http://data.nba.com/data/5s/xml/nbacom/2014/scores/20150301/GSWBOS/pbp_6.xml').getcode() == 200):
-            url = 'http://data.nba.com/data/5s/xml/nbacom/2014/scores/20150301/GSWBOS/pbp_6.xml'
+        if (urllib2.urlopen('http://data.nba.com/data/5s/xml/nbacom/2014/scores/'+year+month+day+'/'+team1+team2+'/pbp_6.xml').getcode() == 200):
+            url = 'http://data.nba.com/data/5s/xml/nbacom/2014/scores/'+year+month+day+'/'+team1+team2+'/pbp_6.xml'
             content = urllib2.urlopen(url).read()   
             quarter4 = etree.fromstring(content)
             for event in quarter4.xpath("//event"):
@@ -133,8 +149,8 @@ def get_live_scores():
     except: 
         print 'DNE'
     try: 
-        if (urllib2.urlopen('http://data.nba.com/data/5s/xml/nbacom/2014/scores/20150301/GSWBOS/pbp_7.xml').getcode() == 200):
-            url = 'http://data.nba.com/data/5s/xml/nbacom/2014/scores/20150301/GSWBOS/pbp_7.xml'
+        if (urllib2.urlopen('http://data.nba.com/data/5s/xml/nbacom/2014/scores/'+year+month+day+'/'+team1+team2+'/pbp_7.xml').getcode() == 200):
+            url = 'http://data.nba.com/data/5s/xml/nbacom/2014/scores/'+year+month+day+'/'+team1+team2+'/pbp_7.xml'
             content = urllib2.urlopen(url).read()   
             quarter4 = etree.fromstring(content)
             for event in quarter4.xpath("//event"):
@@ -157,16 +173,11 @@ def get_live_scores():
     play_by_play_info['home'] = home
     play_by_play_info['away'] = away
     live_games.append(play_by_play_info.copy())"""
-    
 
 
 def scores():
-    """get_live_scores()
-    live_games_cols = ['QUARTER', 'TIME', 'EVENT']
-    live_games_df = pd.DataFrame(live_games,columns = live_games_cols)
-    live_games_df = live_games_df.to_html(classes="table table-condensed", index=False)
-    return dict(live_games_df=live_games_df)
-    {{=XML(live_games_df)}}
+    """
+    {
      <div class="table table-hover">
             {{=TABLE(TR(TH(''),TH('TEAM'),TH('RECORD'), 
                 TH('1'),TH('2'),TH('3'),TH('4')),
