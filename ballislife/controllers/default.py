@@ -144,6 +144,7 @@ def get_live_scores(team1, team2):
     except: 
         print 'DNE'
     
+    
 def scores():
     """Get parameters for current date to pass into url"""
     day = time.strftime('%d')
